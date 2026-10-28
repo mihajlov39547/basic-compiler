@@ -536,15 +536,15 @@ Turn the project into a usable compiler tool.
 
 ### Tasks
 
-- [ ] Add commands such as:
+- [x] Add commands such as:
   - `lex`
   - `parse`
   - `check`
   - `interpret`
-- [ ] Support reading a source file and outputting each stage
-- [ ] Add end-to-end validation against sample programs
-- [ ] Confirm each stage produces inspectable output
-- [ ] Introduce `Strategy` pattern for CLI command dispatch
+- [x] Support reading a source file and outputting each stage
+- [x] Add end-to-end validation against sample programs
+- [x] Confirm each stage produces inspectable output
+- [x] Introduce `Strategy` pattern for CLI command dispatch
   - `LexCommand`
   - `ParseCommand`
   - `CheckCommand`
@@ -556,13 +556,17 @@ The CLI is a natural place to apply the Strategy pattern once multiple commands 
 
 ### Tests
 
-- [ ] sample program executes successfully
-- [ ] compiler emits tokens, AST, and symbols
-- [ ] diagnostics print correctly
+- [x] sample program executes successfully
+- [x] compiler emits tokens, AST, and symbols
+- [x] diagnostics print correctly
 
 ### Deliverable
 
 The project behaves like a teaching compiler front end with a working runtime.
+
+### Status
+
+Phase 9 is complete for the MVP. The project now has a simple strategy-based CLI dispatcher in [BasicCompiler/Program.cs](BasicCompiler/Program.cs) and [BasicCompiler/Cli/CompilerCommands.cs](BasicCompiler/Cli/CompilerCommands.cs) that supports `lex`, `parse`, `check`, and `interpret`, while preserving the original one-argument source-file behavior as a default interpret flow.
 
 ---
 

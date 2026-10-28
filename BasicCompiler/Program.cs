@@ -1,55 +1,30 @@
-﻿using BasicCompiler.Lexer;
-using BasicCompiler.Output;
-using BasicCompiler.Runtime;
-using BasicCompiler.Syntax;
+﻿using BasicCompiler.Cli;
 
-// Activity 10: Turn the compiler flow into a visible CLI pipeline for students.
 if (args.Length == 0)
 {
-    Console.Error.WriteLine("Usage: dotnet run --project BasicCompiler.csproj -- <path-to-sample.bas>");
+    Console.Error.WriteLine(CompilerCommandFactory.GetUsageText());
     return 1;
 }
 
-// Activity 1: Load the source program from disk.
-var sourcePath = args[0];
-if (!File.Exists(sourcePath))
+var factory = new CompilerCommandFactory();
+var commandName = args[0];
+
+if (commandName is "--help" or "-h" or "help")
 {
-    Console.Error.WriteLine($"File not found: {sourcePath}");
-    return 1;
+    return factory.Create("help").Execute(Array.Empty<string>());
 }
 
-// Activity 2: Read the raw source text into memory.
-var source = File.ReadAllText(sourcePath);
-
-// Activity 5: Lex the source into tokens and save the result for later study.
-var lexer = new Lexer(source);
-var tokens = lexer.Tokenize();
-var lexerArtifactPath = ArtifactWriter.WriteLexerTokens(tokens, sourcePath);
-
-Console.WriteLine($"MiniBASIC source: {sourcePath}");
-Console.WriteLine($"\nLexer artifact saved to: {lexerArtifactPath}");
-Console.WriteLine("\nTokens:");
-foreach (var token in tokens)
+if (factory.IsKnownCommand(commandName))
 {
-    if (token.Kind != TokenKind.EndOfFile)
-    {
-        Console.WriteLine($"{token.Kind}: {token.Text}");
-    }
+    return factory.Create(commandName).Execute(args[1..]);
 }
 
-// Activity 6: Parse the token stream into AST statements and save the educational dump for later study.
-var parser = new Parser(tokens);
-var statements = parser.ParseProgram();
-var astArtifactPath = ArtifactWriter.WriteAst(statements, sourcePath);
+if (args.Length == 1 && File.Exists(commandName))
+{
+    return factory.Create("interpret").Execute(args);
+}
 
-Console.WriteLine($"\nAST artifact saved to: {astArtifactPath}");
-Console.WriteLine("\nAST:");
-Console.WriteLine(AstPrinter.Print(statements));
-
-// Activity 9: Execute the resulting program through the reference interpreter.
-var interpreter = new Interpreter();
-var result = interpreter.Execute(statements);
-
-Console.WriteLine($"\nExecution result: {result}");
-return 0;
+Console.Error.WriteLine($"Unknown command '{commandName}'.");
+Console.Error.WriteLine(CompilerCommandFactory.GetUsageText());
+return 1;
 
