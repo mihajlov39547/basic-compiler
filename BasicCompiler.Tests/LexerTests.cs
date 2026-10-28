@@ -221,6 +221,23 @@ public class LexerTests
     }
 
     [Fact]
+    public void DiagnosticBag_TracksErrorStateWithoutPresentationLogic()
+    {
+        var bag = new BasicCompiler.Diagnostics.DiagnosticBag();
+
+        Assert.False(bag.HasErrors);
+        Assert.False(bag.HasWarnings);
+
+        bag.ReportWarning("Low-priority warning.", new SourceSpan(0, 1, 1, 1));
+        Assert.False(bag.HasErrors);
+        Assert.True(bag.HasWarnings);
+
+        bag.ReportError("Bad parse.", new SourceSpan(10, 3, 2, 5));
+        Assert.True(bag.HasErrors);
+        Assert.True(bag.HasWarnings);
+    }
+
+    [Fact]
     public void NameResolver_ResolvesVariablesAcrossNestedBlocks()
     {
         var statements = new Statement[]

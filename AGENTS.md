@@ -248,14 +248,42 @@ BoundVariableExpression(symbol = VariableSymbol#1)
 
 This project models the same idea in a lightweight form by attaching a `BoundSymbol` to the variable expression after successful resolution.
 
+### Diagnostic bag / collector
+
+This is an engineering compiler idiom rather than a GoF pattern.
+
+```text
+Lexer ──────┐
+Parser ─────┤
+Resolver ───┼──→ DiagnosticBag
+TypeChecker ┤
+Lowerer ────┘
+```
+
+Each phase produces `Diagnostic` objects containing:
+
+- code
+- severity
+- message
+- source span
+
+The important architectural rule is separation of concerns:
+
+```text
+compiler logic ≠ presentation of errors
+```
+
+The compiler should collect facts, warnings, and errors in a structured way without directly calling `Console.WriteLine` all over the codebase. Presentation is a later concern and can render the same diagnostic bag in CLI, test output, or IDE tooling.
+
 The project should teach this progression explicitly:
 
 1. `Composite` for the AST tree
 2. `Visitor` for walk operations over the tree
 3. nested `Scope` / environment resolution for lexical scoping
 4. symbol table binding for identifier-to-symbol mapping
-5. `Strategy` only where runtime behavior varies by mode or command
-6. `Factory` only when object creation becomes a real source of complexity
+5. `DiagnosticBag` as the shared collector for all compiler phases
+6. `Strategy` only where runtime behavior varies by mode or command
+7. `Factory` only when object creation becomes a real source of complexity
 
 ## Notes for future work
 

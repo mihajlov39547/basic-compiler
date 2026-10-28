@@ -79,6 +79,27 @@ BoundVariableExpression(symbol = VariableSymbol#1)
 
 This project models the same idea by attaching a `BoundSymbol` to each resolved `VariableExpression`, so the AST contains a direct reference to the symbol it resolved against.
 
+### Diagnostic collector note
+
+The compiler should not scatter direct console output calls throughout every phase. Instead, each pass reports structured `Diagnostic` records that are accumulated by a shared `DiagnosticBag`.
+
+This is primarily an engineering/compiler idiom and is a strong separation-of-concerns pattern:
+
+```text
+compiler logic
+      ≠
+presentation of errors
+```
+
+A diagnostic contains:
+
+- code
+- severity
+- message
+- source span
+
+The collector makes reporting uniform across lexer, parser, resolver, type checker, and later lowering passes without tying analysis logic to a particular UI format.
+
 ### Pattern: Iterator-like cursor for the lexer
 
 // Activity: Teach the lexer as a sequence of cursor operations instead of as a framework-heavy iterator.

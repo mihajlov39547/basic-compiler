@@ -41,6 +41,9 @@ public sealed class DiagnosticBag
         Add(new Diagnostic(message, DiagnosticSeverity.Info, span));
     }
 
+    public bool HasErrors => _diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error);
+    public bool HasWarnings => _diagnostics.Any(d => d.Severity == DiagnosticSeverity.Warning);
+
     public void Clear() => _diagnostics.Clear();
 
     public override string ToString()
