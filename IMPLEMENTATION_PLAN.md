@@ -232,18 +232,13 @@ CompilationResult result = compiler.Compile(source);
 
 This keeps the caller from needing to manually run each compiler stage one by one. The facade is a convenience layer, not a new compiler architecture.
 
-### Other patterns to use when appropriate
+### Pattern notes and scope
 
-// Activity: Add reusable patterns only when they make the compiler easier to teach and maintain.
+The compiler should keep the architecture small and explicit.
 
-- [ ] Visitor pattern for AST traversal and evaluation
-  - useful for pretty-printing, interpretation, and type checking
-- [ ] Strategy pattern for CLI commands
-  - useful for `lex`, `parse`, `check`, and `interpret` command modes
-- [ ] Factory pattern for AST / node creation when complexity grows
-  - useful for parser construction and node instantiation without hardcoding object creation
-
-These patterns are optional and should be introduced only when they add clarity to a phase, not before the project needs them.
+- Visitor is already used for AST traversal where it adds clarity.
+- Strategy is already used for CLI command dispatch.
+- The project does not add extra pattern abstraction layers beyond what the compiler needs.
 
 Target progression:
 
@@ -272,6 +267,25 @@ program output
 ```
 
 This project is about learning compiler concepts, not building a production language runtime.
+
+## Current status summary
+
+All core implementation phases for the v0.1 MiniBASIC compiler are complete.
+
+- Phase 0: complete
+- Phase 1: complete
+- Phase 2: complete
+- Phase 3: complete
+- Phase 4: complete
+- Phase 5: complete
+- Phase 6: complete
+- Phase 7: complete
+- Phase 8: complete
+- Phase 9: complete
+
+No active implementation phases remain for the v0.1 MVP.
+
+Advanced topics are intentionally moved to the future-work document and are not part of the current roadmap.
 
 ---
 
