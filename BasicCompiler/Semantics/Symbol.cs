@@ -1,6 +1,6 @@
 namespace BasicCompiler.Semantics;
 
-public sealed class Symbol
+public class Symbol
 {
     public Symbol(string name, string typeName, bool isMutable = true)
     {

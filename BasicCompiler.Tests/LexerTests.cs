@@ -1,6 +1,7 @@
 using BasicCompiler.Diagnostics;
 using BasicCompiler.Lexer;
 using BasicCompiler.Output;
+using BasicCompiler.Syntax.AST;
 using BasicCompiler.Text;
 
 namespace BasicCompiler.Tests;
@@ -185,6 +186,55 @@ public class LexerTests
         Assert.Equal(DiagnosticSeverity.Error, bag.Diagnostics[0].Severity);
         Assert.Contains("Missing semicolon", bag.ToString());
         Assert.Contains("Warning", bag.ToString());
+    }
+
+    [Fact]
+    public void NameResolver_ResolvesVariablesAcrossNestedBlocks()
+    {
+        var statements = new Statement[]
+        {
+            new VariableDeclaration("outer", new LiteralExpression(1.0)),
+            new IfStatement(
+                new LiteralExpression(true),
+                new BlockStatement(new Statement[]
+                {
+                    new VariableDeclaration("inner", new BinaryExpression(new VariableExpression("outer"), "+", new LiteralExpression(2.0))),
+                    new PrintStatement(new VariableExpression("inner"))
+                }),
+                null)
+        };
+
+        var resolver = new BasicCompiler.Semantics.NameResolver();
+        resolver.Resolve(statements);
+
+        var dump = resolver.GetSymbolDump();
+        Assert.Contains("outer", dump);
+        Assert.Contains("inner", dump);
+    }
+
+    [Fact]
+    public void NameResolver_ReportsDuplicateNamesInSameScope()
+    {
+        var statements = new Statement[]
+        {
+            new VariableDeclaration("value", new LiteralExpression(10.0)),
+            new VariableDeclaration("value", new LiteralExpression(20.0))
+        };
+
+        var resolver = new BasicCompiler.Semantics.NameResolver();
+
+        var exception = Assert.Throws<InvalidOperationException>(() => resolver.Resolve(statements));
+        Assert.Contains("already declared", exception.Message);
+    }
+
+    [Fact]
+    public void VariableSymbol_IsCreatedWithNameAndType()
+    {
+        var symbol = new BasicCompiler.Semantics.VariableSymbol("total", "number");
+
+        Assert.Equal("total", symbol.Name);
+        Assert.Equal("number", symbol.TypeName);
+        Assert.True(symbol.IsMutable);
     }
 
     [Fact]

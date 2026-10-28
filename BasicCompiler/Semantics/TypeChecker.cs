@@ -24,7 +24,7 @@ public sealed class TypeChecker
         {
             case VariableDeclaration declaration:
                 var declaredType = declaration.Initializer is null ? "unknown" : InferType(declaration.Initializer, scope);
-                scope.Declare(new Symbol(declaration.Name, declaredType));
+                scope.Declare(new VariableSymbol(declaration.Name, declaredType));
                 break;
 
             case IfStatement ifStatement:

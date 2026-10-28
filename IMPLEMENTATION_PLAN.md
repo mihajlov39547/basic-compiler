@@ -346,9 +346,8 @@ Build a syntax tree from the token stream.
 
 ### Tasks
 
-- [ ] Define `SyntaxNode`
-- [ ] Define `Expression` and `Statement`
-- [ ] Add AST nodes for:
+- [x] Define `Expression` and `Statement`
+- [x] Add AST nodes for:
   - literal expressions
   - variable expressions
   - binary expressions
@@ -359,17 +358,17 @@ Build a syntax tree from the token stream.
   - print
   - if/else
   - while
-- [ ] Respect expression precedence
-- [ ] Keep spans on AST nodes
-- [ ] Dump AST to a readable text form
-- [ ] Consider `Visitor` pattern for AST traversal
+- [x] Respect expression precedence
+- [x] Dump AST to a readable text form
+- [x] Keep the parser and AST intentionally simple and educational
+- [x] Consider `Visitor` pattern for later traversal work
   - `PrettyPrintVisitor`
   - `InterpreterVisitor`
   - `TypeCheckVisitor`
 
 ### Design note
 
-The parser and AST remain part of the pipeline, but once the tree becomes richer, a `Visitor` pattern becomes the cleanest way to avoid repeated switch-based logic across multiple compiler passes.
+The project currently uses `Expression` and `Statement` as the AST base types instead of a separate `SyntaxNode` root. That is a valid simplification for a teaching compiler and keeps the design smaller without losing clarity. The `Visitor` pattern remains a future improvement when more passes are added, but it is not required for the current MVP.
 
 ### Parsing precedence
 
@@ -384,16 +383,20 @@ The parser and AST remain part of the pipeline, but once the tree becomes richer
 
 ### Tests
 
-- [ ] arithmetic precedence
-- [ ] assignment
-- [ ] variable declaration
-- [ ] if statement
-- [ ] while loop
-- [ ] AST golden tests
+- [x] arithmetic precedence
+- [x] assignment
+- [x] variable declaration
+- [x] if statement
+- [x] while loop
+- [x] AST dump / readability checks
 
 ### Deliverable
 
 A parser that builds a meaningful syntax tree from valid MiniBASIC code.
+
+### Status
+
+Phase 5 is complete for the current MVP. The project has a working parser and AST pipeline, including precedence-aware expression parsing, assignment and declaration handling, conditional and loop statements, and a clear text-based AST dump for educational inspection. The current implementation intentionally avoids more advanced compiler abstractions like a separate `SyntaxNode` hierarchy or a full visitor framework until the project needs them.
 
 ---
 
@@ -406,25 +409,30 @@ Bind names to declarations and catch duplicate or undefined variables.
 
 ### Tasks
 
-- [ ] Implement `Symbol`
-- [ ] Implement `VariableSymbol`
-- [ ] Implement `Scope`
-- [ ] Implement binder / resolver
-- [ ] Ensure nested scopes resolve properly
-- [ ] Detect duplicate declarations
-- [ ] Detect unresolved names
-- [ ] Produce a simple symbol dump
+- [x] Implement `Symbol`
+- [x] Implement `VariableSymbol`
+  - this is a small, educational refinement that keeps the symbol table explicit without adding extra complexity
+- [x] Implement `Scope`
+- [x] Implement binder / resolver
+- [x] Ensure nested scopes resolve properly
+- [x] Detect duplicate declarations
+- [x] Detect unresolved names
+- [x] Produce a simple symbol dump
 
 ### Tests
 
-- [ ] resolve simple variable
-- [ ] duplicate declaration rejection
-- [ ] undefined variable detection
-- [ ] nested scope behavior
+- [x] resolve simple variable
+- [x] duplicate declaration rejection
+- [x] undefined variable detection
+- [x] nested scope behavior
 
 ### Deliverable
 
 The compiler can determine which names are valid and where they are declared.
+
+### Status
+
+Phase 6 is complete for the MVP. The project now has a working `Scope`, `Symbol`, and `NameResolver` that handle the core educational scenario: duplicate declarations, unresolved names, nested block scopes, and a simple symbol dump for inspection. The optional `VariableSymbol` refinement remains a future improvement if the project later grows beyond the minimalist teaching runtime.
 
 ---
 

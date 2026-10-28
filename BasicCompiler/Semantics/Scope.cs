@@ -11,6 +11,8 @@ public sealed class Scope
         Parent = parent;
     }
 
+    public IReadOnlyList<Symbol> Symbols => _symbols.Values.ToList();
+
     public void Declare(Symbol symbol)
     {
         if (_symbols.ContainsKey(symbol.Name))
@@ -35,5 +37,21 @@ public sealed class Scope
 
         symbol = null;
         return false;
+    }
+
+    public IEnumerable<Symbol> Flatten()
+    {
+        if (Parent is not null)
+        {
+            foreach (var symbol in Parent.Flatten())
+            {
+                yield return symbol;
+            }
+        }
+
+        foreach (var symbol in _symbols.Values)
+        {
+            yield return symbol;
+        }
     }
 }
