@@ -1,4 +1,5 @@
 using BasicCompiler.Lexer;
+using BasicCompiler.Text;
 
 namespace BasicCompiler.Tests;
 
@@ -149,5 +150,25 @@ public class LexerTests
         var result = new BasicCompiler.Runtime.Interpreter().Execute(statements);
 
         Assert.NotNull(result);
+    }
+
+    [Fact]
+    public void SourceText_TracksLinesAndColumns()
+    {
+        var sourceText = SourceText.FromText("abc\nxy\nz");
+
+        Assert.Equal(3, sourceText.LineCount);
+        Assert.Equal(0, sourceText.GetLineStart(0));
+        Assert.Equal(4, sourceText.GetLineStart(1));
+        Assert.Equal(7, sourceText.GetLineStart(2));
+
+        var position = sourceText.GetPosition(5);
+        Assert.Equal(1, position.Line);
+        Assert.Equal(1, position.Column);
+
+        var span = sourceText.GetSpan(4, 2);
+        Assert.Equal(1, span.Line);
+        Assert.Equal(0, span.Column);
+        Assert.Equal(2, span.Length);
     }
 }

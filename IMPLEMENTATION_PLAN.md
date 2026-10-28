@@ -171,18 +171,22 @@ Give every compiler stage a reliable way to track source positions.
 
 ### Tasks
 
-- [ ] Implement `SourceText`
+- [x] Implement `SourceText`
   - filename
   - full source text
   - line mapping
   - character indexing
-- [ ] Implement `SourcePosition`
-- [ ] Implement `SourceSpan`
-- [ ] Add tests for line/column calculations
+- [x] Implement `SourcePosition`
+- [x] Implement `SourceSpan`
+- [x] Add tests for line/column calculations
 
 ### Deliverable
 
 The compiler can report where errors happened in source files.
+
+### Status
+
+Phase 2 is complete for the current MVP. The project now has a minimal `SourceText`/`SourcePosition` layer that tracks line starts and character offsets, and a `SourceSpan` structure that can anchor later diagnostics to source locations.
 
 ---
 
