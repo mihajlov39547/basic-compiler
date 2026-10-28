@@ -253,7 +253,8 @@ public sealed class Parser
 
         if (Match(TokenKind.String))
         {
-            return new LiteralExpression(Previous().Text);
+            var text = Previous().Text;
+            return new LiteralExpression(UnescapeStringLiteral(text));
         }
 
         if (Match(TokenKind.Identifier))
@@ -269,6 +270,39 @@ public sealed class Parser
         }
 
         throw new InvalidOperationException($"Unexpected token '{Current.Text}' while parsing expression.");
+    }
+
+    private static string UnescapeStringLiteral(string literal)
+    {
+        if (literal.Length < 2)
+        {
+            return literal;
+        }
+
+        var inner = literal.Substring(1, literal.Length - 2);
+        var builder = new System.Text.StringBuilder();
+
+        for (var i = 0; i < inner.Length; i++)
+        {
+            if (inner[i] == '\\' && i + 1 < inner.Length)
+            {
+                builder.Append(inner[i + 1] switch
+                {
+                    'n' => '\n',
+                    'r' => '\r',
+                    't' => '\t',
+                    '\\' => '\\',
+                    '"' => '"',
+                    _ => inner[i + 1]
+                });
+                i++;
+                continue;
+            }
+
+            builder.Append(inner[i]);
+        }
+
+        return builder.ToString();
     }
 
     private void ConsumeOptionalSemicolon()

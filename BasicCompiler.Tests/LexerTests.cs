@@ -307,16 +307,36 @@ public class LexerTests
     }
 
     [Fact]
-    public void AstPrinter_ShowsOperatorPrecedenceClearly()
+    public void AstPrinter_GoldenOutput_ForOperatorPrecedence()
     {
-        var tokens = new BasicCompiler.Lexer.Lexer("var result := 1 + 2 * 3").Tokenize();
+        var tokens = new BasicCompiler.Lexer.Lexer("var a := 1 + 2 * 3").Tokenize();
         var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
         var dump = AstPrinter.Print(statements);
 
-        Assert.Contains("Program", dump);
-        Assert.Contains("BinaryExpression [Add]", dump);
+        var expected = string.Join(Environment.NewLine,
+            "Program",
+            "└── VariableDeclaration",
+            "    ├── Name: a",
+            "    └── Initializer",
+            "        └── BinaryExpression [Add]",
+            "            ├── NumberLiteral [1]",
+            "            └── BinaryExpression [Multiply]",
+            "                ├── NumberLiteral [2]",
+            "                └── NumberLiteral [3]");
+
+        Assert.Equal(expected, dump);
+    }
+
+    [Fact]
+    public void AstPrinter_GoldenOutput_ForParenthesizedExpression()
+    {
+        var tokens = new BasicCompiler.Lexer.Lexer("var a := (1 + 2) * 3").Tokenize();
+        var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
+        var dump = AstPrinter.Print(statements);
+
         Assert.Contains("BinaryExpression [Multiply]", dump);
-        Assert.True(dump.IndexOf("BinaryExpression [Add]", StringComparison.Ordinal) < dump.IndexOf("BinaryExpression [Multiply]", StringComparison.Ordinal));
+        Assert.Contains("BinaryExpression [Add]", dump);
+        Assert.True(dump.IndexOf("BinaryExpression [Multiply]", StringComparison.Ordinal) < dump.IndexOf("BinaryExpression [Add]", StringComparison.Ordinal));
     }
 
     [Fact]

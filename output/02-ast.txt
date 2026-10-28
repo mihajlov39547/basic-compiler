@@ -1,5 +1,5 @@
 Source: sample.bas
-Generated: 2026-10-28T11:21:06.8325854Z
+Generated: 2026-10-28T11:26:22.1408547Z
 Statement count: 33
 
 AST
@@ -46,31 +46,31 @@ Program
 │   ├── Then
 │   │   └── BlockStatement
 │   │       └── PrintStatement
-│   │           └── Expression
-│   │               └── StringLiteral ["compiler start"]
+│   │           └── StringLiteral ["compiler start"]
 │   └── Else
 │       └── BlockStatement
 │           └── PrintStatement
-│               └── Expression
-│                   └── StringLiteral ["compiler blocked"]
+│               └── StringLiteral ["compiler blocked"]
 ├── WhileStatement
 │   ├── Condition
-│   │   └── BinaryExpression [LessThan]
+│   │   └── BinaryExpression [Less]
 │   │       ├── VariableExpression [counter]
 │   │       └── VariableExpression [limit]
 │   └── Body
 │       └── BlockStatement
 │           ├── AssignmentStatement
-│           │   ├── Name: total
-│           │   └── Expression
+│           │   ├── Target
+│           │   │   └── VariableExpression [total]
+│           │   └── Value
 │           │       └── BinaryExpression [Add]
 │           │           ├── VariableExpression [total]
 │           │           └── BinaryExpression [Multiply]
 │           │               ├── VariableExpression [counter]
 │           │               └── NumberLiteral [2]
 │           └── AssignmentStatement
-│               ├── Name: counter
-│               └── Expression
+│               ├── Target
+│               │   └── VariableExpression [counter]
+│               └── Value
 │                   └── BinaryExpression [Add]
 │                       ├── VariableExpression [counter]
 │                       └── NumberLiteral [1]
@@ -84,7 +84,7 @@ Program
 │   ├── Name: done
 │   └── Initializer
 │       └── BinaryExpression [LogicalAnd]
-│           ├── BinaryExpression [GreaterThanOrEqual]
+│           ├── BinaryExpression [GreaterOrEqual]
 │           │   ├── VariableExpression [counter]
 │           │   └── VariableExpression [limit]
 │           └── BinaryExpression [NotEqual]
@@ -93,7 +93,7 @@ Program
 ├── VariableDeclaration
 │   ├── Name: isSmall
 │   └── Initializer
-│       └── BinaryExpression [LessThan]
+│       └── BinaryExpression [Less]
 │           ├── VariableExpression [total]
 │           └── NumberLiteral [10]
 ├── VariableDeclaration
@@ -111,63 +111,46 @@ Program
 ├── VariableDeclaration
 │   ├── Name: isLessOrEqual
 │   └── Initializer
-│       └── BinaryExpression [LessThanOrEqual]
+│       └── BinaryExpression [LessOrEqual]
 │           ├── VariableExpression [average]
 │           └── NumberLiteral [5]
 ├── VariableDeclaration
 │   ├── Name: isGreaterOrEqual
 │   └── Initializer
-│       └── BinaryExpression [GreaterThanOrEqual]
+│       └── BinaryExpression [GreaterOrEqual]
 │           ├── VariableExpression [average]
 │           └── NumberLiteral [2]
 ├── PrintStatement
-│   └── Expression
-│       └── VariableExpression [name]
+│   └── VariableExpression [name]
 ├── PrintStatement
-│   └── Expression
-│       └── StringLiteral ["total="]
+│   └── StringLiteral ["total="]
 ├── PrintStatement
-│   └── Expression
-│       └── VariableExpression [total]
+│   └── VariableExpression [total]
 ├── PrintStatement
-│   └── Expression
-│       └── StringLiteral ["average="]
+│   └── StringLiteral ["average="]
 ├── PrintStatement
-│   └── Expression
-│       └── VariableExpression [average]
+│   └── VariableExpression [average]
 ├── PrintStatement
-│   └── Expression
-│       └── StringLiteral ["done?"]
+│   └── StringLiteral ["done?"]
 ├── PrintStatement
-│   └── Expression
-│       └── VariableExpression [done]
+│   └── VariableExpression [done]
 ├── PrintStatement
-│   └── Expression
-│       └── StringLiteral ["small?"]
+│   └── StringLiteral ["small?"]
 ├── PrintStatement
-│   └── Expression
-│       └── VariableExpression [isSmall]
+│   └── VariableExpression [isSmall]
 ├── PrintStatement
-│   └── Expression
-│       └── StringLiteral ["equal?"]
+│   └── StringLiteral ["equal?"]
 ├── PrintStatement
-│   └── Expression
-│       └── VariableExpression [isEqual]
+│   └── VariableExpression [isEqual]
 ├── PrintStatement
-│   └── Expression
-│       └── StringLiteral ["not equal?"]
+│   └── StringLiteral ["not equal?"]
 ├── PrintStatement
-│   └── Expression
-│       └── VariableExpression [isNotEqual]
+│   └── VariableExpression [isNotEqual]
 ├── PrintStatement
-│   └── Expression
-│       └── StringLiteral ["leq?"]
+│   └── StringLiteral ["leq?"]
 ├── PrintStatement
-│   └── Expression
-│       └── VariableExpression [isLessOrEqual]
+│   └── VariableExpression [isLessOrEqual]
 ├── PrintStatement
-│   └── Expression
-│       └── StringLiteral ["geq?"]
+│   └── StringLiteral ["geq?"]
 └── PrintStatement
-    └── Expression
-        └── VariableExpression [isGreaterOrEqual]
+    └── VariableExpression [isGreaterOrEqual]
