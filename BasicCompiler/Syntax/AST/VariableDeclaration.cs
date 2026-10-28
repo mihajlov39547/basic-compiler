@@ -12,6 +12,6 @@ public sealed class VariableDeclaration : Statement
     public Expression? Initializer { get; }
 
     public override string ToString() => Initializer is null
-        ? $"let {Name};"
-        : $"let {Name} = {Initializer};";
+        ? $"var {Name};"
+        : $"var {Name} := {Initializer};";
 }

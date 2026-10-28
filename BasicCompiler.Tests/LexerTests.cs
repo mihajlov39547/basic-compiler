@@ -137,4 +137,17 @@ public class LexerTests
         var exception = Assert.Throws<InvalidOperationException>(() => new BasicCompiler.Lexer.Lexer("\"unterminated").Tokenize());
         Assert.Contains("Unterminated string", exception.Message);
     }
+
+    [Fact]
+    public void SampleProgram_ParsesAndExecutes()
+    {
+        var samplePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "sample.bas"));
+        var source = File.ReadAllText(samplePath);
+
+        var tokens = new BasicCompiler.Lexer.Lexer(source).Tokenize();
+        var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
+        var result = new BasicCompiler.Runtime.Interpreter().Execute(statements);
+
+        Assert.NotNull(result);
+    }
 }

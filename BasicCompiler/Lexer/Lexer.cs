@@ -186,6 +186,7 @@ public sealed class Lexer
             "true" => TokenKind.True,
             "false" => TokenKind.False,
             "while" => TokenKind.While,
+            "do" => TokenKind.Do,
             "endwhile" => TokenKind.EndWhile,
             _ => TokenKind.Identifier
         };

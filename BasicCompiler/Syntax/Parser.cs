@@ -32,7 +32,7 @@ public sealed class Parser
 
     private Statement ParseStatement()
     {
-        if (Match(TokenKind.Let))
+        if (Match(TokenKind.Var))
         {
             return ParseVariableDeclaration();
         }
@@ -42,11 +42,19 @@ public sealed class Parser
             return ParseIfStatement();
         }
 
+        if (Match(TokenKind.While))
+        {
+            return ParseWhileStatement();
+        }
+
         if (Match(TokenKind.Print))
         {
-            var expression = ParseExpression();
-            Consume(TokenKind.Semicolon, "Expected ';' after print statement.");
-            return new PrintStatement(expression);
+            return ParsePrintStatement();
+        }
+
+        if (Current.Kind == TokenKind.Identifier && Peek(1).Kind == TokenKind.Assign)
+        {
+            return ParseAssignmentStatement();
         }
 
         throw new InvalidOperationException($"Unexpected token '{Current.Text}' while parsing statement.");
@@ -55,15 +63,34 @@ public sealed class Parser
     private VariableDeclaration ParseVariableDeclaration()
     {
         var name = Consume(TokenKind.Identifier, "Expected variable name.").Text;
+        Consume(TokenKind.Assign, "Expected ':=' after variable name.");
+        var initializer = ParseExpression();
+        ConsumeOptionalSemicolon();
+        return new VariableDeclaration(name, initializer);
+    }
 
-        Expression? initializer = null;
-        if (Match(TokenKind.Equals))
+    private AssignmentStatement ParseAssignmentStatement()
+    {
+        var name = Consume(TokenKind.Identifier, "Expected variable name.").Text;
+        Consume(TokenKind.Assign, "Expected ':=' after variable name.");
+        var expression = ParseExpression();
+        ConsumeOptionalSemicolon();
+        return new AssignmentStatement(name, expression);
+    }
+
+    private PrintStatement ParsePrintStatement()
+    {
+        var expression = Match(TokenKind.LParen)
+            ? ParseExpression()
+            : ParseExpression();
+
+        if (Previous().Kind != TokenKind.RParen && Current.Kind == TokenKind.RParen)
         {
-            initializer = ParseExpression();
+            Consume(TokenKind.RParen, "Expected ')' after expression.");
         }
 
-        Consume(TokenKind.Semicolon, "Expected ';' after variable declaration.");
-        return new VariableDeclaration(name, initializer);
+        ConsumeOptionalSemicolon();
+        return new PrintStatement(expression);
     }
 
     private IfStatement ParseIfStatement()
@@ -71,24 +98,88 @@ public sealed class Parser
         var condition = ParseExpression();
         Consume(TokenKind.Then, "Expected 'then' after if condition.");
 
-        var thenStatement = ParseStatement();
-        Statement? elseStatement = null;
+        var thenBlock = ParseBlockUntil(TokenKind.Else, TokenKind.EndIf);
+        Statement? elseBlock = null;
 
         if (Match(TokenKind.Else))
         {
-            elseStatement = ParseStatement();
+            elseBlock = ParseBlockUntil(TokenKind.EndIf);
         }
 
-        return new IfStatement(condition, thenStatement, elseStatement);
+        Consume(TokenKind.EndIf, "Expected 'endif' after if block.");
+        return new IfStatement(condition, thenBlock, elseBlock);
     }
 
-    private Expression ParseExpression() => ParseComparison();
+    private WhileStatement ParseWhileStatement()
+    {
+        var condition = ParseExpression();
+        Consume(TokenKind.Do, "Expected 'do' after while condition.");
+        var body = ParseBlockUntil(TokenKind.EndWhile);
+        Consume(TokenKind.EndWhile, "Expected 'endwhile' after while block.");
+        return new WhileStatement(condition, body);
+    }
+
+    private BlockStatement ParseBlockUntil(params TokenKind[] terminators)
+    {
+        var statements = new List<Statement>();
+
+        while (!IsAtEnd() && !terminators.Contains(Current.Kind))
+        {
+            statements.Add(ParseStatement());
+        }
+
+        return new BlockStatement(statements);
+    }
+
+    private Expression ParseExpression() => ParseLogicalOr();
+
+    private Expression ParseLogicalOr()
+    {
+        var expression = ParseLogicalAnd();
+
+        while (Match(TokenKind.OrOr))
+        {
+            var op = Previous().Text;
+            var right = ParseLogicalAnd();
+            expression = new BinaryExpression(expression, op, right);
+        }
+
+        return expression;
+    }
+
+    private Expression ParseLogicalAnd()
+    {
+        var expression = ParseEquality();
+
+        while (Match(TokenKind.AndAnd))
+        {
+            var op = Previous().Text;
+            var right = ParseEquality();
+            expression = new BinaryExpression(expression, op, right);
+        }
+
+        return expression;
+    }
+
+    private Expression ParseEquality()
+    {
+        var expression = ParseComparison();
+
+        while (Current.Kind is TokenKind.Equals or TokenKind.EqualsEquals or TokenKind.NotEquals)
+        {
+            var op = Advance().Text;
+            var right = ParseComparison();
+            expression = new BinaryExpression(expression, op, right);
+        }
+
+        return expression;
+    }
 
     private Expression ParseComparison()
     {
         var expression = ParseAdditive();
 
-        while (Current.Kind is TokenKind.EqualsEquals or TokenKind.NotEquals or TokenKind.LessThan or TokenKind.GreaterThan or TokenKind.LessThanOrEqual or TokenKind.GreaterThanOrEqual)
+        while (Current.Kind is TokenKind.LessThan or TokenKind.GreaterThan or TokenKind.LessThanOrEqual or TokenKind.GreaterThanOrEqual)
         {
             var op = Advance().Text;
             var right = ParseAdditive();
@@ -114,16 +205,33 @@ public sealed class Parser
 
     private Expression ParseMultiplicative()
     {
-        var expression = ParsePrimary();
+        var expression = ParseUnary();
 
         while (Current.Kind is TokenKind.Star or TokenKind.Slash)
         {
             var op = Advance().Text;
-            var right = ParsePrimary();
+            var right = ParseUnary();
             expression = new BinaryExpression(expression, op, right);
         }
 
         return expression;
+    }
+
+    private Expression ParseUnary()
+    {
+        if (Match(TokenKind.Not))
+        {
+            var op = Previous().Text;
+            return new UnaryExpression(op, ParseUnary());
+        }
+
+        if (Match(TokenKind.Minus))
+        {
+            var op = Previous().Text;
+            return new UnaryExpression(op, ParseUnary());
+        }
+
+        return ParsePrimary();
     }
 
     private Expression ParsePrimary()
@@ -143,6 +251,11 @@ public sealed class Parser
             return new LiteralExpression(false);
         }
 
+        if (Match(TokenKind.String))
+        {
+            return new LiteralExpression(Previous().Text);
+        }
+
         if (Match(TokenKind.Identifier))
         {
             return new VariableExpression(Previous().Text);
@@ -156,6 +269,14 @@ public sealed class Parser
         }
 
         throw new InvalidOperationException($"Unexpected token '{Current.Text}' while parsing expression.");
+    }
+
+    private void ConsumeOptionalSemicolon()
+    {
+        if (Current.Kind == TokenKind.Semicolon)
+        {
+            Advance();
+        }
     }
 
     private bool Match(params TokenKind[] kinds)
@@ -191,5 +312,16 @@ public sealed class Parser
 
     private Token Current => _tokens[_index];
     private Token Previous() => _tokens[_index - 1];
+    private Token Peek(int offset)
+    {
+        var index = _index + offset;
+        if (index >= _tokens.Count)
+        {
+            return _tokens[^1];
+        }
+
+        return _tokens[index];
+    }
+
     private bool IsAtEnd() => Current.Kind == TokenKind.EndOfFile;
 }

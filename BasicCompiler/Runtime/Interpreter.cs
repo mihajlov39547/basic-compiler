@@ -22,10 +22,25 @@ public sealed class Interpreter
     {
         switch (statement)
         {
+            case BlockStatement block:
+                object? blockResult = null;
+                foreach (var item in block.Statements)
+                {
+                    blockResult = ExecuteStatement(item);
+                }
+                return blockResult;
+
             case VariableDeclaration declaration:
                 {
                     var value = declaration.Initializer is null ? null : EvaluateExpression(declaration.Initializer);
                     _globalEnvironment.Define(declaration.Name, value);
+                    return value;
+                }
+
+            case AssignmentStatement assignment:
+                {
+                    var value = EvaluateExpression(assignment.Expression);
+                    _globalEnvironment.Set(assignment.Name, value);
                     return value;
                 }
 
@@ -40,6 +55,16 @@ public sealed class Interpreter
                     if (ifStatement.ElseStatement is not null)
                     {
                         return ExecuteStatement(ifStatement.ElseStatement);
+                    }
+
+                    return null;
+                }
+
+            case WhileStatement whileStatement:
+                {
+                    while (EvaluateExpression(whileStatement.Condition) is bool loopCondition && loopCondition)
+                    {
+                        ExecuteStatement(whileStatement.Body);
                     }
 
                     return null;
@@ -67,6 +92,15 @@ public sealed class Interpreter
             case VariableExpression variable:
                 return _globalEnvironment.Get(variable.Name);
 
+            case UnaryExpression unary:
+                var operand = EvaluateExpression(unary.Operand);
+                return unary.Operator switch
+                {
+                    "!" => !(operand is bool value && value),
+                    "-" => Negate(operand),
+                    _ => throw new InvalidOperationException($"Unsupported unary operator '{unary.Operator}'.")
+                };
+
             case BinaryExpression binary:
                 var left = EvaluateExpression(binary.Left);
                 var right = EvaluateExpression(binary.Right);
@@ -78,7 +112,10 @@ public sealed class Interpreter
                     "*" => Multiply(left, right),
                     "/" => Divide(left, right),
                     "==" => AreEqual(left, right),
+                    "=" => AreEqual(left, right),
                     "!=" => !AreEqual(left, right),
+                    "&&" => AreTrue(left) && AreTrue(right),
+                    "||" => AreTrue(left) || AreTrue(right),
                     "<" => Compare(left, right, (a, b) => a < b),
                     ">" => Compare(left, right, (a, b) => a > b),
                     "<=" => Compare(left, right, (a, b) => a <= b),
@@ -122,7 +159,24 @@ public sealed class Interpreter
         throw new InvalidOperationException("Division requires numeric operands.");
     }
 
+    private static object? Negate(object? value)
+    {
+        if (value is double d) return -d;
+        if (value is int i) return -i;
+        throw new InvalidOperationException("Unary minus requires a numeric operand.");
+    }
+
     private static bool AreEqual(object? left, object? right) => left?.Equals(right) ?? right is null;
+
+    private static bool AreTrue(object? value)
+    {
+        if (value is bool b)
+        {
+            return b;
+        }
+
+        throw new InvalidOperationException("Logical operators require boolean operands.");
+    }
 
     private static bool Compare(object? left, object? right, Func<double, double, bool> operation)
     {

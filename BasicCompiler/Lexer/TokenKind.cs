@@ -48,6 +48,7 @@ public enum TokenKind
     True,
     False,
     While,
+    Do,
     EndWhile,
 
     // Special
