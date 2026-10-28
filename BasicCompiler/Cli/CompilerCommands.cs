@@ -165,18 +165,29 @@ public sealed class InterpretCommand : CompilerCommandBase
     public override int Execute(string[] args)
     {
         var sourcePath = RequireSourcePath(args);
-        var source = ReadSource(sourcePath);
-        var tokens = new LexerClass(source).Tokenize();
-        var lexerArtifactPath = ArtifactWriter.WriteLexerTokens(tokens, sourcePath);
-        var statements = new Parser(tokens).ParseProgram();
-        var astArtifactPath = ArtifactWriter.WriteAst(statements, sourcePath);
-        var interpreter = new Interpreter();
-        var result = interpreter.Execute(statements);
+
+        var compiler = new MiniBasicCompiler();
+        var compileResult = compiler.CompileFile(sourcePath);
+
+        var lexerArtifactPath = ArtifactWriter.WriteLexerTokens(compileResult.Tokens, sourcePath);
+        var astArtifactPath = ArtifactWriter.WriteAst(compileResult.Statements, sourcePath);
 
         Console.WriteLine($"MiniBASIC source: {sourcePath}");
         Console.WriteLine($"Lexer artifact saved to: {lexerArtifactPath}");
         Console.WriteLine($"AST artifact saved to: {astArtifactPath}");
-        Console.WriteLine("\nExecution result: {0}", result);
+        Console.WriteLine($"\nExecution result: {compileResult.RuntimeResult}");
+
+        if (compileResult.HasErrors)
+        {
+            Console.WriteLine("\nDiagnostics:");
+            foreach (var diagnostic in compileResult.Diagnostics)
+            {
+                Console.WriteLine(diagnostic);
+            }
+
+            return 1;
+        }
+
         return 0;
     }
 }

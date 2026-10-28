@@ -151,7 +151,7 @@ public sealed class TypeChecker
                         }
                         break;
 
-                    case "==" or "!=":
+                    case "==" or "=" or "!=":
                         if (leftType != "unknown" && rightType != "unknown" && leftType != rightType)
                         {
                             diagnostics.Add(new Diagnostic($"Operator '{binary.Operator}' requires matching operand types in {context}.", DiagnosticSeverity.Error, new SourceSpan(0, 0, 0, 0)));
@@ -225,7 +225,7 @@ public sealed class TypeChecker
                         "unknown";
                 }
 
-                if (binary.Operator is "==" or "!=")
+                if (binary.Operator is "==" or "=" or "!=")
                 {
                     return leftType == rightType && leftType != "unknown" ? "bool" : "unknown";
                 }

@@ -51,6 +51,20 @@ public class CompilerCommandTests
     }
 
     [Fact]
+    public void MiniBasicCompilerFacade_CompilesSourceIntoPipelineResult()
+    {
+        var compiler = new BasicCompiler.MiniBasicCompiler();
+        var result = compiler.Compile("var total := 10\nprint(total)");
+
+        Assert.NotNull(result);
+        Assert.NotNull(result.Tokens);
+        Assert.NotEmpty(result.Tokens);
+        Assert.NotEmpty(result.Statements);
+        Assert.Equal(0, result.Diagnostics.Count);
+        Assert.Equal("total", ((BasicCompiler.Syntax.AST.VariableDeclaration)result.Statements[0]).Name);
+    }
+
+    [Fact]
     public void InterpretCommand_WritesFullArtifactsForTheSourceProgram()
     {
         var tempPath = Path.Combine(Path.GetTempPath(), $"mini-basic-phase10-{Guid.NewGuid():N}.bas");

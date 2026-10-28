@@ -51,6 +51,28 @@ interpreter
 
 This is a pipeline, not a Chain of Responsibility. Each stage has a clear input/output contract and the flow is intentionally simple and easy to teach.
 
+A concise way to describe the pattern is:
+
+```text
+SourceText -> Lexer -> Token[] -> Parser -> AST -> NameResolver -> TypeChecker -> Interpreter
+```
+
+Each phase has a defined input and output, and the project is designed to make those transitions visible to students.
+
+### Pattern: Facade
+
+// Activity: Provide one simple compiler entry point for the caller.
+
+Once the pipeline is working, the project can expose a higher-level facade that wraps the full sequence:
+
+```csharp
+var compiler = new MiniBasicCompiler();
+
+CompilationResult result = compiler.Compile(source);
+```
+
+This keeps the caller from needing to manually run each compiler stage one by one. The facade is a convenience layer, not a new compiler architecture.
+
 ### Other patterns to use when appropriate
 
 // Activity: Add reusable patterns only when they make the compiler easier to teach and maintain.
