@@ -195,6 +195,7 @@ public class LexerTests
 
         Assert.True(File.Exists(artifactPath));
         Assert.Contains("Var", File.ReadAllText(artifactPath));
+        Assert.Equal("01-tokens.txt", Path.GetFileName(artifactPath));
     }
 
     [Fact]
@@ -205,6 +206,47 @@ public class LexerTests
         var artifactPath = ArtifactWriter.WriteAst(statements, "demo.bas");
 
         Assert.True(File.Exists(artifactPath));
-        Assert.Contains("print", File.ReadAllText(artifactPath));
+        Assert.Contains("Program", File.ReadAllText(artifactPath));
+        Assert.Contains("VariableDeclaration", File.ReadAllText(artifactPath));
+        Assert.Equal("02-ast.txt", Path.GetFileName(artifactPath));
+    }
+
+    [Fact]
+    public void AstPrinter_ShowsOperatorPrecedenceClearly()
+    {
+        var tokens = new BasicCompiler.Lexer.Lexer("var result := 1 + 2 * 3").Tokenize();
+        var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
+        var dump = AstPrinter.Print(statements);
+
+        Assert.Contains("Program", dump);
+        Assert.Contains("BinaryExpression [Add]", dump);
+        Assert.Contains("BinaryExpression [Multiply]", dump);
+        Assert.True(dump.IndexOf("BinaryExpression [Add]", StringComparison.Ordinal) < dump.IndexOf("BinaryExpression [Multiply]", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void AstPrinter_UsesStructuredIfElseLabels()
+    {
+        var tokens = new BasicCompiler.Lexer.Lexer("if a = 1 then\n print(\"yes\")\nelse\n print(\"no\")\nendif").Tokenize();
+        var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
+        var dump = AstPrinter.Print(statements);
+
+        Assert.Contains("IfStatement", dump);
+        Assert.Contains("Condition", dump);
+        Assert.Contains("Then", dump);
+        Assert.Contains("Else", dump);
+        Assert.Contains("StringLiteral [\"yes\"]", dump);
+    }
+
+    [Fact]
+    public void AstPrinter_ShowsLogicalPrecedence()
+    {
+        var tokens = new BasicCompiler.Lexer.Lexer("if a = 1 || b = 2 && c = 3 then\n print(\"yes\")\nendif").Tokenize();
+        var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
+        var dump = AstPrinter.Print(statements);
+
+        Assert.Contains("BinaryExpression [LogicalOr]", dump);
+        Assert.Contains("BinaryExpression [LogicalAnd]", dump);
+        Assert.True(dump.IndexOf("BinaryExpression [LogicalOr]", StringComparison.Ordinal) < dump.IndexOf("BinaryExpression [LogicalAnd]", StringComparison.Ordinal));
     }
 }

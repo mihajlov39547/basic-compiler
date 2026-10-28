@@ -8,7 +8,7 @@ public static class ArtifactWriter
     public static string WriteLexerTokens(IReadOnlyList<Token> tokens, string sourcePath)
     {
         var outputDirectory = GetOutputDirectory();
-        var filePath = Path.Combine(outputDirectory, "lexer-tokens.txt");
+        var filePath = Path.Combine(outputDirectory, "01-tokens.txt");
 
         var lines = new List<string>
         {
@@ -36,20 +36,16 @@ public static class ArtifactWriter
     public static string WriteAst(IReadOnlyList<Statement> statements, string sourcePath)
     {
         var outputDirectory = GetOutputDirectory();
-        var filePath = Path.Combine(outputDirectory, "parser-ast.txt");
+        var filePath = Path.Combine(outputDirectory, "02-ast.txt");
 
         var lines = new List<string>
         {
             $"Source: {Path.GetFileName(sourcePath)}",
             $"Generated: {DateTime.UtcNow:O}",
             $"Statement count: {statements.Count}",
-            string.Empty
+            string.Empty,
+            AstPrinter.Print(statements)
         };
-
-        for (var i = 0; i < statements.Count; i++)
-        {
-            lines.Add($"[{i}] {statements[i]}");
-        }
 
         Directory.CreateDirectory(outputDirectory);
         File.WriteAllLines(filePath, lines);
