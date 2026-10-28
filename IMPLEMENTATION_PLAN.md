@@ -1,6 +1,10 @@
-# MiniBASIC Implementation Plan
+# MiniBASIC Implementation Plan - Completed MVP
 
-This is the minimal, student-friendly roadmap for the first version of the project. The goal is to keep the compiler small, observable, and teachable.
+This document records the completed minimal, student-friendly roadmap for the first version of the project. The goal was to keep the compiler small, observable, and teachable, and that MVP has now been reached.
+
+> Status: completed
+> Scope: v0.1 MiniBASIC compiler
+> Future work: kept in [ADVANCED_FUTURE_WORK.md](ADVANCED_FUTURE_WORK.md)
 
 ## Core teaching goal
 

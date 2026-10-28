@@ -1,5 +1,5 @@
 Source: sample.bas
-Generated: 2026-10-28T12:05:40.6193960Z
+Generated: 2026-10-28T12:10:53.1135720Z
 Statement count: 33
 
 AST
