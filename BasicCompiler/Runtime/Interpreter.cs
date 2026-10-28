@@ -12,29 +12,30 @@ public sealed class Interpreter
 
         foreach (var statement in statements)
         {
-            lastValue = ExecuteStatement(statement);
+            var runtimeValue = ExecuteStatement(statement);
+            lastValue = runtimeValue?.ToClrObject();
         }
 
         return lastValue;
     }
 
-    private object? ExecuteStatement(Statement statement)
+    private RuntimeValue ExecuteStatement(Statement statement)
     {
         switch (statement)
         {
             case BlockStatement block:
-                object? blockResult = null;
+                RuntimeValue? blockResult = null;
                 foreach (var item in block.Statements)
                 {
                     blockResult = ExecuteStatement(item);
                 }
-                return blockResult;
+                return blockResult ?? RuntimeValue.Boolean(true);
 
             case VariableDeclaration declaration:
                 {
                     var value = declaration.Initializer is null ? null : EvaluateExpression(declaration.Initializer);
-                    _globalEnvironment.Define(declaration.Name, value);
-                    return value;
+                    _globalEnvironment.Define(declaration.Name, value ?? RuntimeValue.Boolean(true));
+                    return value ?? RuntimeValue.Boolean(true);
                 }
 
             case AssignmentStatement assignment:
@@ -47,7 +48,7 @@ public sealed class Interpreter
             case IfStatement ifStatement:
                 {
                     var condition = EvaluateExpression(ifStatement.Condition);
-                    if (condition is bool boolValue && boolValue)
+                    if (condition is BooleanValue { Value: true })
                     {
                         return ExecuteStatement(ifStatement.ThenStatement);
                     }
@@ -57,23 +58,23 @@ public sealed class Interpreter
                         return ExecuteStatement(ifStatement.ElseStatement);
                     }
 
-                    return null;
+                    return RuntimeValue.Boolean(true);
                 }
 
             case WhileStatement whileStatement:
                 {
-                    while (EvaluateExpression(whileStatement.Condition) is bool loopCondition && loopCondition)
+                    while (EvaluateExpression(whileStatement.Condition) is BooleanValue { Value: true })
                     {
                         ExecuteStatement(whileStatement.Body);
                     }
 
-                    return null;
+                    return RuntimeValue.Boolean(true);
                 }
 
             case PrintStatement printStatement:
                 {
                     var value = EvaluateExpression(printStatement.Expression);
-                    Console.WriteLine(value);
+                    Console.WriteLine(value.ToClrObject());
                     return value;
                 }
 
@@ -82,12 +83,12 @@ public sealed class Interpreter
         }
     }
 
-    private object? EvaluateExpression(Expression expression)
+    private RuntimeValue EvaluateExpression(Expression expression)
     {
         switch (expression)
         {
             case LiteralExpression literal:
-                return literal.Value;
+                return RuntimeValue.FromObject(literal.Value);
 
             case VariableExpression variable:
                 return _globalEnvironment.Get(variable.Name);
@@ -96,7 +97,7 @@ public sealed class Interpreter
                 var operand = EvaluateExpression(unary.Operand);
                 return unary.Operator switch
                 {
-                    "!" => !(operand is bool value && value),
+                    "!" => RuntimeValue.Boolean(!(operand is BooleanValue value && value.Value)),
                     "-" => Negate(operand),
                     _ => throw new InvalidOperationException($"Unsupported unary operator '{unary.Operator}'.")
                 };
@@ -111,15 +112,15 @@ public sealed class Interpreter
                     "-" => Subtract(left, right),
                     "*" => Multiply(left, right),
                     "/" => Divide(left, right),
-                    "==" => AreEqual(left, right),
-                    "=" => AreEqual(left, right),
-                    "!=" => !AreEqual(left, right),
-                    "&&" => AreTrue(left) && AreTrue(right),
-                    "||" => AreTrue(left) || AreTrue(right),
-                    "<" => Compare(left, right, (a, b) => a < b),
-                    ">" => Compare(left, right, (a, b) => a > b),
-                    "<=" => Compare(left, right, (a, b) => a <= b),
-                    ">=" => Compare(left, right, (a, b) => a >= b),
+                    "==" => RuntimeValue.Boolean(AreEqual(left, right)),
+                    "=" => RuntimeValue.Boolean(AreEqual(left, right)),
+                    "!=" => RuntimeValue.Boolean(!AreEqual(left, right)),
+                    "&&" => RuntimeValue.Boolean(AreTrue(left) && AreTrue(right)),
+                    "||" => RuntimeValue.Boolean(AreTrue(left) || AreTrue(right)),
+                    "<" => RuntimeValue.Boolean(Compare(left, right, (a, b) => a < b)),
+                    ">" => RuntimeValue.Boolean(Compare(left, right, (a, b) => a > b)),
+                    "<=" => RuntimeValue.Boolean(Compare(left, right, (a, b) => a <= b)),
+                    ">=" => RuntimeValue.Boolean(Compare(left, right, (a, b) => a >= b)),
                     _ => throw new InvalidOperationException($"Unsupported operator '{binary.Operator}'.")
                 };
 
@@ -128,66 +129,91 @@ public sealed class Interpreter
         }
     }
 
-    private static object? Add(object? left, object? right)
+    private static RuntimeValue Add(RuntimeValue left, RuntimeValue right)
     {
-        return left switch
+        if (left is NumberValue leftNumber && right is NumberValue rightNumber)
         {
-            double d when right is double r => d + r,
-            int i when right is int j => i + j,
-            _ => throw new InvalidOperationException("Addition requires numeric operands.")
-        };
+            return RuntimeValue.Number(leftNumber.Value + rightNumber.Value);
+        }
+
+        throw new InvalidOperationException("Addition requires numeric operands.");
     }
 
-    private static object? Subtract(object? left, object? right)
+    private static RuntimeValue Subtract(RuntimeValue left, RuntimeValue right)
     {
-        if (left is double d && right is double r) return d - r;
-        if (left is int i && right is int j) return i - j;
+        if (left is NumberValue leftNumber && right is NumberValue rightNumber)
+        {
+            return RuntimeValue.Number(leftNumber.Value - rightNumber.Value);
+        }
+
         throw new InvalidOperationException("Subtraction requires numeric operands.");
     }
 
-    private static object? Multiply(object? left, object? right)
+    private static RuntimeValue Multiply(RuntimeValue left, RuntimeValue right)
     {
-        if (left is double d && right is double r) return d * r;
-        if (left is int i && right is int j) return i * j;
+        if (left is NumberValue leftNumber && right is NumberValue rightNumber)
+        {
+            return RuntimeValue.Number(leftNumber.Value * rightNumber.Value);
+        }
+
         throw new InvalidOperationException("Multiplication requires numeric operands.");
     }
 
-    private static object? Divide(object? left, object? right)
+    private static RuntimeValue Divide(RuntimeValue left, RuntimeValue right)
     {
-        if (left is double d && right is double r) return d / r;
-        if (left is int i && right is int j) return i / (double)j;
+        if (left is NumberValue leftNumber && right is NumberValue rightNumber)
+        {
+            return RuntimeValue.Number(leftNumber.Value / rightNumber.Value);
+        }
+
         throw new InvalidOperationException("Division requires numeric operands.");
     }
 
-    private static object? Negate(object? value)
+    private static RuntimeValue Negate(RuntimeValue value)
     {
-        if (value is double d) return -d;
-        if (value is int i) return -i;
+        if (value is NumberValue numberValue)
+        {
+            return RuntimeValue.Number(-numberValue.Value);
+        }
+
         throw new InvalidOperationException("Unary minus requires a numeric operand.");
     }
 
-    private static bool AreEqual(object? left, object? right) => left?.Equals(right) ?? right is null;
-
-    private static bool AreTrue(object? value)
+    private static bool AreEqual(RuntimeValue left, RuntimeValue right)
     {
-        if (value is bool b)
+        if (left is NumberValue leftNumber && right is NumberValue rightNumber)
         {
-            return b;
+            return leftNumber.Value == rightNumber.Value;
+        }
+
+        if (left is StringValue leftString && right is StringValue rightString)
+        {
+            return leftString.Value == rightString.Value;
+        }
+
+        if (left is BooleanValue leftBool && right is BooleanValue rightBool)
+        {
+            return leftBool.Value == rightBool.Value;
+        }
+
+        return false;
+    }
+
+    private static bool AreTrue(RuntimeValue value)
+    {
+        if (value is BooleanValue booleanValue)
+        {
+            return booleanValue.Value;
         }
 
         throw new InvalidOperationException("Logical operators require boolean operands.");
     }
 
-    private static bool Compare(object? left, object? right, Func<double, double, bool> operation)
+    private static bool Compare(RuntimeValue left, RuntimeValue right, Func<double, double, bool> operation)
     {
-        if (left is double d && right is double r)
+        if (left is NumberValue leftNumber && right is NumberValue rightNumber)
         {
-            return operation(d, r);
-        }
-
-        if (left is int i && right is int j)
-        {
-            return operation(i, j);
+            return operation(leftNumber.Value, rightNumber.Value);
         }
 
         throw new InvalidOperationException("Comparison requires numeric operands.");

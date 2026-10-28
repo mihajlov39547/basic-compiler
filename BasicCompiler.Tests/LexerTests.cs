@@ -1,6 +1,7 @@
 using BasicCompiler.Diagnostics;
 using BasicCompiler.Lexer;
 using BasicCompiler.Output;
+using BasicCompiler.Runtime;
 using BasicCompiler.Syntax.AST;
 using BasicCompiler.Text;
 
@@ -153,6 +154,37 @@ public class LexerTests
         var result = new BasicCompiler.Runtime.Interpreter().Execute(statements);
 
         Assert.NotNull(result);
+    }
+
+    [Fact]
+    public void RuntimeValue_UsesTypedValuesForNumberStringAndBoolean()
+    {
+        var number = RuntimeValue.Number(42);
+        var text = RuntimeValue.String("Ada");
+        var flag = RuntimeValue.Boolean(true);
+
+        Assert.Equal("number", number.Kind);
+        Assert.Equal("string", text.Kind);
+        Assert.Equal("boolean", flag.Kind);
+        Assert.Equal(42d, ((NumberValue)number).Value, 0.0001);
+        Assert.Equal("Ada", ((StringValue)text).Value);
+        Assert.True(((BooleanValue)flag).Value);
+    }
+
+    [Fact]
+    public void Interpreter_EvaluatesArithmeticAndBooleanExpressions()
+    {
+        var statements = new Statement[]
+        {
+            new VariableDeclaration("a", new LiteralExpression(10.0)),
+            new VariableDeclaration("b", new LiteralExpression(5.0)),
+            new VariableDeclaration("ok", new BinaryExpression(new VariableExpression("a"), ">", new VariableExpression("b")))
+        };
+
+        var result = new BasicCompiler.Runtime.Interpreter().Execute(statements);
+
+        Assert.True((bool)result!);
+        Assert.Equal(true, result);
     }
 
     [Fact]
@@ -313,7 +345,7 @@ public class LexerTests
         var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
         var dump = AstPrinter.Print(statements);
 
-        var expected = string.Join(Environment.NewLine,
+        var expected = string.Join(System.Environment.NewLine,
             "Program",
             "└── VariableDeclaration",
             "    ├── Name: a",

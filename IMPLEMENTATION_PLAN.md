@@ -487,23 +487,23 @@ Provide the simplest working execution model.
 
 ### Tasks
 
-- [ ] Define runtime values
+- [x] Define runtime values
   - NumberValue
   - StringValue
   - BooleanValue
-- [ ] Implement a runtime environment
-- [ ] Evaluate expressions
+- [x] Implement a runtime environment
+- [x] Evaluate expressions
   - literals
   - variables
   - arithmetic
   - comparisons
   - boolean logic
-- [ ] Execute statements
+- [x] Execute statements
   - assignment
   - print
   - if/else
   - while
-- [ ] Add a command path like `interpret`
+- [x] Add a command path like `interpret`
 
 ### Key rule
 
@@ -511,15 +511,19 @@ This interpreter is a teaching reference. It should be easy to read and easy to 
 
 ### Tests
 
-- [ ] arithmetic evaluation
-- [ ] variable assignment
-- [ ] if execution
-- [ ] while loop execution
-- [ ] output correctness
+- [x] arithmetic evaluation
+- [x] variable assignment
+- [x] if execution
+- [x] while loop execution
+- [x] output correctness
 
 ### Deliverable
 
 A working compiler pipeline from source to runtime result.
+
+### Status
+
+Phase 8 is complete for the MVP. The project now has an explicit runtime value layer (`RuntimeValue` plus `NumberValue`, `StringValue`, and `BooleanValue`), a proper environment for variables, and an interpreter that evaluates arithmetic, comparisons, booleans, assignments, loops, and conditionals. The interpreter remains intentionally simple and readable so it supports teaching rather than production runtime engineering.
 
 ---
 
