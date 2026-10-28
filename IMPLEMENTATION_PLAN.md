@@ -6,9 +6,26 @@ This is the minimal, student-friendly roadmap for the first version of the proje
 
 The compiler should be built in small, inspectable stages. Every phase should produce a readable artifact so students can see how their source program changes as it moves through the pipeline.
 
+## Activities overview
+
+Each phase below is intentionally written as a teaching activity. The goal is not just to implement features, but to make the compiler progression easy to explain and easy to inspect.
+
+- Activity 1: Define the language and keep it small
+- Activity 2: Create the project skeleton and repository structure
+- Activity 3: Track source text and positions reliably
+- Activity 4: Emit clear compiler diagnostics
+- Activity 5: Convert source code into tokens
+- Activity 6: Build a syntax tree from those tokens
+- Activity 7: Bind names and validate symbol usage
+- Activity 8: Check types before execution
+- Activity 9: Execute the program with a reference interpreter
+- Activity 10: Package the work into a readable CLI and validation flow
+
 ## Architecture choices
 
 ### Primary pattern: Pipeline / pass-based processing
+
+// Activity: Keep the compiler as a straightforward pipeline of transformations.
 
 This is the main design pattern for the project and it is already in use.
 
@@ -35,6 +52,8 @@ interpreter
 This is a pipeline, not a Chain of Responsibility. Each stage has a clear input/output contract and the flow is intentionally simple and easy to teach.
 
 ### Other patterns to use when appropriate
+
+// Activity: Add reusable patterns only when they make the compiler easier to teach and maintain.
 
 - [ ] Visitor pattern for AST traversal and evaluation
   - useful for pretty-printing, interpretation, and type checking
@@ -122,6 +141,8 @@ These belong in a separate future-work document.
 
 ## Phase 0: Definition of the compiler
 
+// Activity: Freeze the language so the rest of the compiler has a clear target.
+
 ### Goal
 Freeze a small first-language version and keep the scope stable.
 
@@ -144,6 +165,8 @@ Phase 0 is complete for the MVP scope. The project now has a single canonical v0
 ---
 
 ## Phase 1: Repository structure and project skeleton
+
+// Activity: Set up the project so each later phase has a stable place to live.
 
 ### Goal
 Create a clean project layout before implementing compiler features.
@@ -207,6 +230,8 @@ The project already reflects the pipeline architecture in practice: the entry po
 
 ## Phase 2: Source text and source positions
 
+// Activity: Teach the compiler how to locate errors and track positions in source code.
+
 ### Goal
 Give every compiler stage a reliable way to track source positions.
 
@@ -233,6 +258,8 @@ Phase 2 is complete for the current MVP. The project now has a minimal `SourceTe
 
 ## Phase 3: Diagnostics
 
+// Activity: Turn raw errors into useful messages with meaningful locations.
+
 ### Goal
 Support helpful and structured compiler errors.
 
@@ -254,6 +281,8 @@ A simple diagnostic system with precise source locations.
 ---
 
 ## Phase 4: Lexer
+
+// Activity: Convert text into tokens so the parser can reason about the program.
 
 ### Goal
 Turn source text into tokens.
@@ -302,6 +331,8 @@ A working token stream for the language.
 ---
 
 ## Phase 5: Parser and AST
+
+// Activity: Build a syntax tree so the language structure becomes explicit and inspectable.
 
 ### Goal
 Build a syntax tree from the token stream.
@@ -361,6 +392,8 @@ A parser that builds a meaningful syntax tree from valid MiniBASIC code.
 
 ## Phase 6: Name resolution and symbol table
 
+// Activity: Bind names to declarations so the compiler knows what each identifier refers to.
+
 ### Goal
 Bind names to declarations and catch duplicate or undefined variables.
 
@@ -389,6 +422,8 @@ The compiler can determine which names are valid and where they are declared.
 ---
 
 ## Phase 7: Type checking
+
+// Activity: Validate variable and expression types before execution.
 
 ### Goal
 Validate variable and expression types before execution.
@@ -425,6 +460,8 @@ The compiler catches type mismatches before execution.
 ---
 
 ## Phase 8: Reference interpreter
+
+// Activity: Run the language in the simplest possible way to prove the pipeline works.
 
 ### Goal
 Provide the simplest working execution model.
@@ -469,6 +506,8 @@ A working compiler pipeline from source to runtime result.
 
 ## Phase 9: CLI and end-to-end validation
 
+// Activity: Package the compiler as a readable tool that can validate the full workflow.
+
 ### Goal
 Turn the project into a usable compiler tool.
 
@@ -505,6 +544,8 @@ The project behaves like a teaching compiler front end with a working runtime.
 ---
 
 ## Factory pattern and future extensibility
+
+// Activity: Keep future patterns in mind without introducing them too early.
 
 The project should not over-engineer early, but it should keep a few reusable patterns in mind for future phases.
 

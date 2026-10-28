@@ -2,12 +2,14 @@
 using BasicCompiler.Runtime;
 using BasicCompiler.Syntax;
 
+// Activity 10: Turn the compiler flow into a visible CLI pipeline for students.
 if (args.Length == 0)
 {
     Console.Error.WriteLine("Usage: dotnet run --project BasicCompiler.csproj -- <path-to-sample.bas>");
     return 1;
 }
 
+// Activity 1: Load the source program from disk.
 var sourcePath = args[0];
 if (!File.Exists(sourcePath))
 {
@@ -15,7 +17,10 @@ if (!File.Exists(sourcePath))
     return 1;
 }
 
+// Activity 2: Read the raw source text into memory.
 var source = File.ReadAllText(sourcePath);
+
+// Activity 5: Lex the source into tokens.
 var lexer = new Lexer(source);
 var tokens = lexer.Tokenize();
 
@@ -29,6 +34,7 @@ foreach (var token in tokens)
     }
 }
 
+// Activity 6: Parse the token stream into AST statements.
 var parser = new Parser(tokens);
 var statements = parser.ParseProgram();
 
@@ -38,6 +44,7 @@ foreach (var statement in statements)
     Console.WriteLine(statement);
 }
 
+// Activity 9: Execute the resulting program through the reference interpreter.
 var interpreter = new Interpreter();
 var result = interpreter.Execute(statements);
 
