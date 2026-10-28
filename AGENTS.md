@@ -169,6 +169,51 @@ dotnet run --project .
 dotnet test --nologo
 ```
 
+## GoF pattern lecture sequence
+
+The first explicit GoF pattern in this project should be `Composite`, because the AST is the canonical recursive tree structure of a compiler.
+
+```text
+Expression
+├── LiteralExpression
+├── VariableExpression
+├── UnaryExpression
+├── BinaryExpression
+├── ArrayExpression
+└── CallExpression
+```
+
+A `BinaryExpression` is a branch node that contains child `Expression` values:
+
+```text
+BinaryExpression
+├── Left: Expression
+└── Right: Expression
+```
+
+This is exactly the Composite pattern: leaves and composites share the same abstraction, and the tree is recursively composed.
+
+The next natural GoF step is `Visitor`.
+
+```text
+One AST
+  └── many traversals
+       ├── AstPrinter
+       ├── NameResolver
+       ├── TypeChecker
+       ├── Interpreter
+       └── Lowerer
+```
+
+Without `Visitor`, the AST nodes would accumulate unrelated responsibilities such as printing, resolution, type checking, interpretation, and lowering. The visitor pattern lets one tree support many operations without turning every node class into an enormous god object.
+
+The project should teach this progression explicitly:
+
+1. `Composite` for the AST tree
+2. `Visitor` for walk operations over the tree
+3. `Strategy` only where runtime behavior varies by mode or command
+4. `Factory` only when object creation becomes a real source of complexity
+
 ## Notes for future work
 
 The repository should evolve in a teaching-friendly sequence:
