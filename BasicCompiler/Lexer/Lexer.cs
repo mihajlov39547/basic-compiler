@@ -1,13 +1,19 @@
+using System.Globalization;
+using BasicCompiler.Diagnostics;
+using BasicCompiler.Text;
+
 namespace BasicCompiler.Lexer;
 
 public sealed class Lexer
 {
     private readonly string _source;
+    private readonly SourceText _sourceText;
     private int _position;
 
     public Lexer(string source)
     {
         _source = source ?? throw new ArgumentNullException(nameof(source));
+        _sourceText = new SourceText(_source);
     }
 
     public IReadOnlyList<Token> Tokenize()
@@ -45,7 +51,8 @@ public sealed class Lexer
             tokens.Add(ReadPunctuation());
         }
 
-        tokens.Add(new Token(TokenKind.EndOfFile, "", _position));
+        var eofSpan = _sourceText.GetSpan(_position, 0);
+        tokens.Add(new Token(TokenKind.EndOfFile, string.Empty, _position, "-", eofSpan));
         return tokens;
     }
 
@@ -60,7 +67,9 @@ public sealed class Lexer
 
         var text = _source.Substring(start, _position - start);
         var kind = GetKeywordKind(text);
-        return new Token(kind, text, start);
+        var value = kind is TokenKind.True or TokenKind.False ? text : "-";
+        var span = _sourceText.GetSpan(start, _position - start);
+        return new Token(kind, text, start, value, span);
     }
 
     private Token ReadNumber()
@@ -83,7 +92,11 @@ public sealed class Lexer
         }
 
         var text = _source.Substring(start, _position - start);
-        return new Token(TokenKind.Number, text, start);
+        var value = double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var numericValue)
+            ? numericValue.ToString("R", CultureInfo.InvariantCulture)
+            : text;
+        var span = _sourceText.GetSpan(start, _position - start);
+        return new Token(TokenKind.Number, text, start, value, span);
     }
 
     private Token ReadString()
@@ -114,7 +127,9 @@ public sealed class Lexer
 
         Advance(); // closing quote
         var text = _source.Substring(start, _position - start);
-        return new Token(TokenKind.String, text, start);
+        var value = DecodeEscapes(text);
+        var span = _sourceText.GetSpan(start, _position - start);
+        return new Token(TokenKind.String, text, start, value, span);
     }
 
     private Token ReadPunctuation()
@@ -122,33 +137,35 @@ public sealed class Lexer
         var start = _position;
         var current = Advance();
 
-        return current switch
+        var token = current switch
         {
-            '+' => new Token(TokenKind.Plus, "+", start),
-            '-' => new Token(TokenKind.Minus, "-", start),
-            '*' => new Token(TokenKind.Star, "*", start),
-            '/' => new Token(TokenKind.Slash, "/", start),
-            ':' when Match('=') => new Token(TokenKind.Assign, ":=", start),
-            ':' => new Token(TokenKind.Colon, ":", start),
-            '=' when Match('=') => new Token(TokenKind.EqualsEquals, "==", start),
-            '=' => new Token(TokenKind.Equals, "=", start),
-            '!' when Match('=') => new Token(TokenKind.NotEquals, "!=", start),
-            '!' => new Token(TokenKind.Not, "!", start),
-            '&' when Match('&') => new Token(TokenKind.AndAnd, "&&", start),
-            '|' when Match('|') => new Token(TokenKind.OrOr, "||", start),
-            '<' when Match('=') => new Token(TokenKind.LessThanOrEqual, "<=", start),
-            '<' => new Token(TokenKind.LessThan, "<", start),
-            '>' when Match('=') => new Token(TokenKind.GreaterThanOrEqual, ">=", start),
-            '>' => new Token(TokenKind.GreaterThan, ">", start),
-            ';' => new Token(TokenKind.Semicolon, ";", start),
-            '(' => new Token(TokenKind.LParen, "(", start),
-            ')' => new Token(TokenKind.RParen, ")", start),
-            '[' => new Token(TokenKind.LBracket, "[", start),
-            ']' => new Token(TokenKind.RBracket, "]", start),
-            ',' => new Token(TokenKind.Comma, ",", start),
-            '.' => new Token(TokenKind.Dot, ".", start),
+            '+' => new Token(TokenKind.Plus, "+", start, "-", _sourceText.GetSpan(start, 1)),
+            '-' => new Token(TokenKind.Minus, "-", start, "-", _sourceText.GetSpan(start, 1)),
+            '*' => new Token(TokenKind.Star, "*", start, "-", _sourceText.GetSpan(start, 1)),
+            '/' => new Token(TokenKind.Slash, "/", start, "-", _sourceText.GetSpan(start, 1)),
+            ':' when Match('=') => new Token(TokenKind.Assign, ":=", start, "-", _sourceText.GetSpan(start, 2)),
+            ':' => new Token(TokenKind.Colon, ":", start, "-", _sourceText.GetSpan(start, 1)),
+            '=' when Match('=') => new Token(TokenKind.EqualsEquals, "==", start, "-", _sourceText.GetSpan(start, 2)),
+            '=' => new Token(TokenKind.Equals, "=", start, "-", _sourceText.GetSpan(start, 1)),
+            '!' when Match('=') => new Token(TokenKind.NotEquals, "!=", start, "-", _sourceText.GetSpan(start, 2)),
+            '!' => new Token(TokenKind.Not, "!", start, "-", _sourceText.GetSpan(start, 1)),
+            '&' when Match('&') => new Token(TokenKind.AndAnd, "&&", start, "-", _sourceText.GetSpan(start, 2)),
+            '|' when Match('|') => new Token(TokenKind.OrOr, "||", start, "-", _sourceText.GetSpan(start, 2)),
+            '<' when Match('=') => new Token(TokenKind.LessThanOrEqual, "<=", start, "-", _sourceText.GetSpan(start, 2)),
+            '<' => new Token(TokenKind.LessThan, "<", start, "-", _sourceText.GetSpan(start, 1)),
+            '>' when Match('=') => new Token(TokenKind.GreaterThanOrEqual, ">=", start, "-", _sourceText.GetSpan(start, 2)),
+            '>' => new Token(TokenKind.GreaterThan, ">", start, "-", _sourceText.GetSpan(start, 1)),
+            ';' => new Token(TokenKind.Semicolon, ";", start, "-", _sourceText.GetSpan(start, 1)),
+            '(' => new Token(TokenKind.LParen, "(", start, "-", _sourceText.GetSpan(start, 1)),
+            ')' => new Token(TokenKind.RParen, ")", start, "-", _sourceText.GetSpan(start, 1)),
+            '[' => new Token(TokenKind.LBracket, "[", start, "-", _sourceText.GetSpan(start, 1)),
+            ']' => new Token(TokenKind.RBracket, "]", start, "-", _sourceText.GetSpan(start, 1)),
+            ',' => new Token(TokenKind.Comma, ",", start, "-", _sourceText.GetSpan(start, 1)),
+            '.' => new Token(TokenKind.Dot, ".", start, "-", _sourceText.GetSpan(start, 1)),
             _ => throw new InvalidOperationException($"Unexpected character '{current}'.")
         };
+
+        return token;
     }
 
     private bool Match(char expected)
@@ -169,6 +186,34 @@ public sealed class Lexer
 
     private char Peek() => IsAtEnd() ? '\0' : _source[_position];
     private bool IsAtEnd() => _position >= _source.Length;
+
+    private static string DecodeEscapes(string text)
+    {
+        var unescaped = text.Substring(1, text.Length - 2);
+        var builder = new System.Text.StringBuilder();
+
+        for (var i = 0; i < unescaped.Length; i++)
+        {
+            if (unescaped[i] == '\\' && i + 1 < unescaped.Length)
+            {
+                builder.Append(unescaped[i + 1] switch
+                {
+                    'n' => '\n',
+                    'r' => '\r',
+                    't' => '\t',
+                    '\\' => '\\',
+                    '"' => '"',
+                    _ => unescaped[i + 1]
+                });
+                i++;
+                continue;
+            }
+
+            builder.Append(unescaped[i]);
+        }
+
+        return builder.ToString();
+    }
 
     private static TokenKind GetKeywordKind(string text)
     {

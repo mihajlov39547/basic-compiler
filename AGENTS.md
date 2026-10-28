@@ -108,6 +108,56 @@ Rules:
 - Prefer adding a test when adding a new concept or behavior.
 - Do not treat tests as an afterthought; they are part of the educational contract.
 
+## Artifact format contract
+
+The project must keep every intermediate artifact precise and stable. A raw `ToString()` dump is not sufficient for teaching because it hides the difference between the programmer’s lexeme, the compiler’s semantic value, and the source location.
+
+### 01-tokens.txt contract
+
+Each emitted token must have a deterministic row with the following columns:
+
+- `#`: sequential token index starting at 0.
+- `Kind`: normalized token classification such as `Var`, `Identifier`, `Number`, `String`, `Assign`, `Plus`, `If`, `Then`, `EOF`.
+- `Text`: exact lexeme as it appears in the source file.
+- `Value`: semantic value when applicable; `-` for non-value tokens.
+- `Span`: zero-based half-open interval `[start..end)`.
+- `Location`: one-based source location in the form `line:column`.
+
+Lexer rules:
+
+- Whitespace is consumed but not emitted as tokens.
+- Newlines are tracked for source locations but are not normally emitted as tokens.
+- Comments are consumed but not emitted as tokens.
+- EOF is always emitted as the final token.
+- EOF has zero width and its text is empty.
+- Number tokens include their parsed numeric value in `Value`.
+- String tokens include the decoded semantic value in `Value`, while `Text` preserves the original source lexeme.
+- Identifier values are `-`; the spelling is already represented by `Text`.
+- Token ordering must exactly match source order.
+- Output must be deterministic and suitable for golden-file tests.
+
+This distinction is especially important for strings:
+
+```text
+var message := "Hello\nWorld"
+```
+
+The compiler should treat:
+
+- `Text` as the characters written by the programmer
+- `Value` as the value understood by the compiler
+
+### 02-ast.txt contract
+
+AST dumps should similarly show:
+
+- node kind
+- relevant values or identifiers
+- tree hierarchy
+- important typed structure where applicable
+
+The goal is not merely “pretty printing”; it is making the tree inspectable and explainable to students.
+
 ## Build and validation commands
 
 Run from the project directory containing the `.csproj` file:

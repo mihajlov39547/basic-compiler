@@ -285,6 +285,11 @@ public class LexerTests
 
         Assert.True(File.Exists(artifactPath));
         Assert.Contains("Var", File.ReadAllText(artifactPath));
+        Assert.Contains("#", File.ReadAllText(artifactPath));
+        Assert.Contains("Value", File.ReadAllText(artifactPath));
+        Assert.Contains("Span", File.ReadAllText(artifactPath));
+        Assert.Contains("Location", File.ReadAllText(artifactPath));
+        Assert.Contains("EOF", File.ReadAllText(artifactPath));
         Assert.Equal("01-tokens.txt", Path.GetFileName(artifactPath));
     }
 

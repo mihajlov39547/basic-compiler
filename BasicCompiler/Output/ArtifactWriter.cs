@@ -15,17 +15,21 @@ public static class ArtifactWriter
             $"Source: {Path.GetFileName(sourcePath)}",
             $"Generated: {DateTime.UtcNow:O}",
             $"Token count: {tokens.Count(t => t.Kind != TokenKind.EndOfFile)}",
-            string.Empty
+            string.Empty,
+            "#  Kind            Text                 Value               Span            Location",
+            "----------------------------------------------------------------------------------------------"
         };
 
-        foreach (var token in tokens)
+        for (var i = 0; i < tokens.Count; i++)
         {
+            var token = tokens[i];
             if (token.Kind == TokenKind.EndOfFile)
             {
+                lines.Add(FormatTokenRow(i, token));
                 continue;
             }
 
-            lines.Add($"{token.Kind,-16} | {token.Text,-18} | position={token.Position}");
+            lines.Add(FormatTokenRow(i, token));
         }
 
         Directory.CreateDirectory(outputDirectory);
@@ -44,6 +48,8 @@ public static class ArtifactWriter
             $"Generated: {DateTime.UtcNow:O}",
             $"Statement count: {statements.Count}",
             string.Empty,
+            "AST",
+            "----",
             AstPrinter.Print(statements)
         };
 
@@ -57,5 +63,55 @@ public static class ArtifactWriter
         var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
         var outputDirectory = Path.Combine(projectRoot, "output");
         return outputDirectory;
+    }
+
+    private static string FormatTokenRow(int index, Token token)
+    {
+        var kind = FormatKind(token.Kind);
+        var text = FormatText(token.Text);
+        var value = FormatValue(token.Value);
+        var span = $"[{token.Span.Start}..{token.Span.Start + token.Span.Length})";
+        var location = token.Location;
+
+        return $"{index,-2} {kind,-14} {text,-22} {value,-18} {span,-16} {location}";
+    }
+
+    private static string FormatKind(TokenKind kind)
+    {
+        return kind switch
+        {
+            TokenKind.EndOfFile => "EOF",
+            _ => kind.ToString()
+        };
+    }
+
+    private static string FormatText(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return "\"\"";
+        }
+
+        return $"\"{EscapeDisplay(text)}\"";
+    }
+
+    private static string FormatValue(string value)
+    {
+        if (string.IsNullOrEmpty(value) || value == "-")
+        {
+            return "-";
+        }
+
+        return EscapeDisplay(value);
+    }
+
+    private static string EscapeDisplay(string input)
+    {
+        var escaped = input.Replace("\\", "\\\\");
+        escaped = escaped.Replace("\n", "\\n");
+        escaped = escaped.Replace("\r", "\\r");
+        escaped = escaped.Replace("\t", "\\t");
+        escaped = escaped.Replace("\"", "\\\"");
+        return escaped;
     }
 }
