@@ -88,15 +88,19 @@ Freeze a small first-language version and keep the scope stable.
 
 ### Tasks
 
-- [ ] Define the supported syntax for v0.1
-- [ ] Define the supported types
-- [ ] Define the accepted statements and expressions
-- [ ] Keep feature scope intentionally small
-- [ ] Write examples that are easy to understand
+- [x] Define the supported syntax for v0.1
+- [x] Define the supported types
+- [x] Define the accepted statements and expressions
+- [x] Keep feature scope intentionally small
+- [x] Write examples that are easy to understand
 
 ### Deliverable
 
 A clear v0.1 language definition that the rest of the project can implement.
+
+### Status
+
+Phase 0 is complete for the MVP scope. The project now has a single canonical v0.1 definition that intentionally omits arrays, function declarations, and other advanced features until later work.
 
 ---
 
@@ -142,17 +146,21 @@ BasicCompiler/
 
 ### Tasks
 
-- [ ] Create the .NET console app
-- [ ] Create the test project
-- [ ] Create the folder structure
-- [ ] Add a basic CLI entry point
-- [ ] Read a source file from disk
-- [ ] Print a compiler banner
-- [ ] Keep logic separate from console output
+- [x] Create the .NET console app
+- [x] Create the test project
+- [x] Create the folder structure
+- [x] Add a basic CLI entry point
+- [x] Read a source file from disk
+- [x] Print a compiler banner
+- [x] Keep logic separate from console output
 
 ### Deliverable
 
 A working project scaffold with no language logic yet.
+
+### Status
+
+Phase 1 is complete for the current repo. The implementation follows the intended skeleton closely, with the main difference being that the project currently keeps `SourceSpan` under `Diagnostics` instead of a dedicated `Text` folder. That is acceptable for an initial scaffold and does not block the next phase.
 
 ---
 

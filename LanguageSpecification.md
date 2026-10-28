@@ -8,24 +8,49 @@ Language style: Pascal-like, statically typed, imperative educational programmin
 
 MiniBASIC is a small statically typed imperative programming language intended for teaching compiler construction, interpreters, virtual machines, semantic analysis, and code generation.
 
+This specification describes the v0.1 language. The first edition is intentionally minimal and deliberately excludes advanced language features that belong in future work.
+
 The language intentionally contains a small number of concepts:
 
 - variables with mandatory initialization
 - automatic local type inference
-- four primitive value types
-- arrays
-- functions
-- one entry-point program
+- primitive value types
 - expressions
 - assignment
 - if/else
 - while
-- function calls
-- explicit return values
+- simple output
 
 MiniBASIC has no null value.
 
 Every variable must contain a valid value immediately after its declaration.
+
+## 1.1 Scope lock for v0.1
+
+The first version is intentionally limited to:
+
+- Number
+- String
+- Boolean
+- `var` declarations with initialization
+- assignment
+- arithmetic and comparisons
+- `if ... then ... else ... endif`
+- `while ... do ... endwhile`
+- `print(...)`
+
+The following features are intentionally out of scope for v0.1 and should be treated as future work:
+
+- arrays
+- user-defined functions
+- function declarations
+- recursion
+- modules
+- inheritance or classes
+- optimizer passes
+- IR / bytecode VM architecture
+
+This keeps the project focused on a teachable first compiler pipeline.
 
 ## 2. Primitive Types
 
@@ -136,56 +161,17 @@ Both variables have type:
 
 ## 6. Arrays
 
-Arrays contain values of a single type.
+This feature is intentionally not part of v0.1.
 
-Examples:
+Arrays may be added in a later iteration of the language, but they are intentionally excluded from the first compiler milestone so the language remains small and easy to teach.
 
-```text
-var numbers := [1, 2, 3, 4]
-```
+For v0.1, the project focuses on scalar values only:
 
-Type:
+- Number
+- String
+- Boolean
 
-- Integer[]
-
-Similarly:
-
-```text
-var prices := [1.5, 2.5, 3.5]
-```
-
-has type:
-
-- Decimal[]
-
-and:
-
-```text
-var names := ["Ana", "Marko", "John"]
-```
-
-has type:
-
-- String[]
-
-An array cannot mix incompatible types:
-
-```text
-var values := [1, "hello", true]
-```
-
-Compile-time error.
-
-For version 0.1 define:
-
-- Integer[]
-- Decimal[]
-- String[]
-- Boolean[]
-
-but not nested arrays yet.
-
-This keeps the first compiler manageable.
+Array syntax and array semantics are marked as future work.
 
 ## 7. No Null Values
 
@@ -593,224 +579,47 @@ and teach desugaring by translating it internally into while.
 
 ## 19. Function Definition
 
-Functions operate entirely on their explicit parameters and local variables.
+This feature is intentionally not part of v0.1.
 
-Suggested syntax:
+User-defined functions are future work and should not be part of the initial compiler milestone. The first language version focuses on variables, assignment, conditionals, loops, and simple output.
 
-```text
-function name(parameterName: Type, ...): ReturnType
-
-    statements
-
-    return expression
-
-endfunction
-```
-
-Example:
-
-```text
-function add(a: Integer, b: Integer): Integer
-    var result := a + b
-    return result
-endfunction
-```
-
-Or simply:
-
-```text
-function add(a: Integer, b: Integer): Integer
-    return a + b
-endfunction
-```
-
-Another:
-
-```text
-function isPositive(value: Decimal): Boolean
-
-    if value > 0.0 then
-        return true
-    else
-        return false
-    endif
-
-endfunction
-```
+The plan reserves function declarations, parameter lists, return values, recursion, and call semantics for future study.
 
 ## 20. Function Parameters
 
-Parameters must have explicitly declared types.
+This feature is intentionally not part of v0.1.
 
-For example:
-
-```text
-function greet(name: String, times: Integer): String
-```
-
-This is intentionally different from local variables.
-
-Local:
-
-```text
-var x := 10
-```
-
-uses inference.
-
-Function parameter:
-
-```text
-x: Integer
-```
-
-is explicit.
-
-This gives us a clean compile-time function contract.
+Parameter-binding rules, value semantics, and call-stack behavior are part of the advanced future-work track rather than the core compiler roadmap.
 
 ## 21. Parameter Passing
 
-For version 0.1 recommend a simple rule:
+This feature is intentionally not part of v0.1.
 
-- Parameters are passed by value.
-
-So:
-
-```text
-function increment(value: Integer): Integer
-    value := value + 1
-    return value
-endfunction
-```
-
-does not modify the caller's variable.
-
-This avoids introducing Pascal's `var` reference parameters yet.
+The initial language does not include user-defined functions, so parameter passing is outside the current scope.
 
 ## 22. Function Return Values
 
-Every function has exactly one declared return type:
+This feature is intentionally not part of v0.1.
 
-- Integer
-- Decimal
-- String
-- Boolean
-
-and, optionally if arrays are allowed as function values:
-
-- Integer[]
-- Decimal[]
-- String[]
-- Boolean[]
-
-Example:
-
-```text
-function maximum(a: Integer, b: Integer): Integer
-
-    if a > b then
-        return a
-    else
-        return b
-    endif
-
-endfunction
-```
-
-For the initial language, make every ordinary function return a value. We therefore do not need a `void` type yet.
-
-That creates a useful semantic-analysis problem:
-
-Can every reachable function path return a value?
-
-For example:
-
-```text
-function broken(a: Integer): Integer
-
-    if a > 0 then
-        return a
-    endif
-
-endfunction
-```
-
-should be rejected because there is an execution path without return.
-
-That later gives us our first interesting control-flow analysis.
+The first compiler milestone does not define return expressions or function contracts.
 
 ## 23. Function Scope
 
-A function can access only:
+This feature is intentionally not part of v0.1.
 
-- its parameters
-- its locally declared variables
-- other globally declared functions / built-in functions
-
-It cannot access global mutable variables because MiniBASIC has none.
-
-For example:
-
-```text
-function calculate(a: Integer): Integer
-
-    var temp := a * 2
-
-    return temp
-
-endfunction
-```
-
-Both `a` and `temp` are local to `calculate`.
-
-This is a very good restriction for an educational compiler because function dependencies become explicit.
+Function-local scope and evaluation environments are intentionally deferred until the project has completed the core lexical, syntactic, semantic, and runtime pipeline.
 
 ## 24. Side Effects
 
-There's one subtlety in the statement:
+This feature is intentionally not part of v0.1.
 
-> "A function works exclusively with parameters it receives."
-
-If interpreted absolutely, even:
-
-```text
-print("hello")
-```
-
-would violate it because `print` causes an external side effect.
-
-Define the rule more precisely:
-
-User-defined functions cannot read or modify global program state. They may use explicitly defined runtime functions such as `print`.
-
-This leaves a very clean name resolution model without unnecessarily turning the language into a purely functional language.
+The initial language does not contain user-defined functions, so side-effect tracking and function purity rules are deferred to a later stage.
 
 ## 25. Function Calls
 
-Functions are called using:
+This feature is intentionally not part of v0.1.
 
-```text
-name(arguments)
-```
-
-Example:
-
-```text
-var result := add(10, 20)
-```
-
-or:
-
-```text
-var positive := isPositive(-3.5)
-```
-
-The compiler verifies:
-
-- function exists
-- argument count is correct
-- argument types are compatible
-- returned type is appropriate for its context
+Function calls are future work and should not be implemented before the core compiler is stable.
 
 ## 26. The Program Entry Point
 
@@ -1063,36 +872,14 @@ We want students studying compiler construction, not spending the semester imple
 
 ## 31. Formal top-level structure
 
-Define a MiniBASIC source file approximately as:
+The v0.1 compiler uses a very small top-level grammar:
 
 ```text
 compilationUnit
-    = functionDeclaration* programDeclaration EOF ;
-
-functionDeclaration
-    = "function"
-      identifier
-      "(" parameterList? ")"
-      ":"
-      type
-      statement*
-      "endfunction" ;
-
-programDeclaration
-    = "program"
-      identifier
-      "(" parameterList? ")"
-      ":"
-      "Integer"
-      statement*
-      "endprogram" ;
+    = statement* EOF ;
 ```
 
-Notice the intentional rule:
-
-There is exactly one program declaration and it must be the final top-level declaration.
-
-That keeps parsing and compilation deterministic and easy to explain.
+This means the project is a sequence of statements rather than a module system or a function-based program model.
 
 ## 32. Statements
 
@@ -1102,8 +889,7 @@ statement
     | assignment
     | ifStatement
     | whileStatement
-    | returnStatement
-    | expressionStatement ;
+    | printStatement ;
 
 variableDeclaration
     = "var" identifier ":=" expression ;
@@ -1123,13 +909,13 @@ whileStatement
         statement*
       "endwhile" ;
 
-returnStatement
-    = "return" expression ;
+printStatement
+    = "print" "(" expression ")" ;
 ```
 
-## 33. Expression grammar
+This grammar is the normative core for the student project.
 
-A clean starting point:
+## 33. Expression grammar
 
 ```text
 expression
@@ -1145,22 +931,17 @@ equality
     = comparison (("=" | "!=") comparison)* ;
 
 comparison
-    = term (("<" | "<=" | ">" | ">=") term)* ;
+    = additive (("<" | "<=" | ">" | ">=") additive)* ;
 
-term
-    = factor (("+" | "-") factor)* ;
+additive
+    = multiplicative (("+" | "-") multiplicative)* ;
 
-factor
+multiplicative
     = unary (("*" | "/") unary)* ;
 
 unary
     = ("!" | "-") unary
-    | postfix ;
-
-postfix
-    = primary
-      ("[" expression "]"
-      | "(" argumentList? ")")* ;
+    | primary ;
 
 primary
     = INTEGER_LITERAL
@@ -1169,24 +950,16 @@ primary
     | "true"
     | "false"
     | identifier
-    | arrayLiteral
     | "(" expression ")" ;
-
-arrayLiteral
-    = "[" (expression ("," expression)*)? "]" ;
 ```
-
-This grammar should be the normative core specification for the student project.
 
 ## 34. The AST naturally follows from the specification
 
-From this language we know almost exactly which AST nodes are needed:
+From this minimal language, the AST stays small and teachable:
 
 ```text
 Program
-│
-├── FunctionDeclaration*
-└── ProgramDeclaration
+└── Statement[]
 ```
 
 Statements:
@@ -1197,8 +970,7 @@ Statement
 ├── Assignment
 ├── IfStatement
 ├── WhileStatement
-├── ReturnStatement
-└── ExpressionStatement
+└── PrintStatement
 ```
 
 Expressions:
@@ -1209,46 +981,20 @@ Expression
 ├── DecimalLiteral
 ├── StringLiteral
 ├── BooleanLiteral
-├── ArrayLiteral
 ├── VariableExpression
 ├── UnaryExpression
 ├── BinaryExpression
-├── CallExpression
-└── IndexExpression
+└── ParenthesizedExpression
 ```
 
-And signatures:
-
-```text
-CallableDeclaration
-├── name
-├── parameters
-├── returnType
-└── body
-```
-
-with:
-
-- `FunctionDeclaration`
-- `ProgramDeclaration`
-
-as two specializations.
-
-This is a very nice language for the course because the grammar remains sufficiently small to implement by hand, while the semantic model is already rich enough to introduce ASTs, Visitor, symbol tables, scopes, type checking, control-flow analysis, interpreter, stack VM, bytecode, function calls, activation records, linking concepts and eventually JIT/LLVM.
-
-One design decision to lock immediately: the program should internally be treated as a special function returning `Integer`, rather than inventing an unrelated execution mechanism for it. That simplification will pay off repeatedly when implementing the parser, AST, semantic analysis, runtime and compiler.
-
-## 35. What should the project support?
-
-The project should support the following minimum milestone for version 0.1:
+For the initial milestone, the grammar remains intentionally small. The project should support:
 
 - lexical tokens for keywords, identifiers, literals, operators, and punctuation
-- parser for variable declarations, assignments, expressions, if/else, while loops, and function/program declarations
-- AST nodes for all core statements and expressions
-- symbol table and scope resolution for local variables and functions
-- static type checking for numbers, strings, booleans, arrays, and function signatures
+- parser for variable declarations, assignments, expressions, if/else, and while loops
+- AST nodes for core statements and expressions
+- symbol table and scope resolution for local variables
+- static type checking for numbers, strings, booleans, and simple assignments
 - interpreter for evaluating the AST at runtime
-- optional bytecode lowering and VM execution for later phases
 - deterministic xUnit tests covering each compiler phase
 
-This guarantees that the project remains faithful to the educational goal: teaching how a compiler moves from source text to structured representation, semantics, execution, and later lower-level code generation.
+This keeps the project faithful to the educational goal: teaching how a compiler moves from source text to structured representation, semantics, and execution without prematurely introducing advanced runtime and function machinery.
