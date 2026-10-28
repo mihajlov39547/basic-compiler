@@ -23,6 +23,16 @@ public sealed class Scope
         _symbols[symbol.Name] = symbol;
     }
 
+    public IEnumerable<Scope> WalkAncestors()
+    {
+        var current = this;
+        while (current is not null)
+        {
+            yield return current;
+            current = current.Parent;
+        }
+    }
+
     public bool TryResolve(string name, out Symbol? symbol)
     {
         if (_symbols.TryGetValue(name, out symbol))

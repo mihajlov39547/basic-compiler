@@ -245,6 +245,28 @@ public class LexerTests
     }
 
     [Fact]
+    public void Scope_TracksAncestorChainForLookup()
+    {
+        var globalScope = new BasicCompiler.Semantics.Scope();
+        var parentScope = new BasicCompiler.Semantics.Scope(globalScope);
+        var currentScope = new BasicCompiler.Semantics.Scope(parentScope);
+
+        globalScope.Declare(new BasicCompiler.Semantics.VariableSymbol("globalValue", "number"));
+        parentScope.Declare(new BasicCompiler.Semantics.VariableSymbol("parentValue", "string"));
+        currentScope.Declare(new BasicCompiler.Semantics.VariableSymbol("localValue", "bool"));
+
+        Assert.True(currentScope.TryResolve("localValue", out _));
+        Assert.True(currentScope.TryResolve("parentValue", out _));
+        Assert.True(currentScope.TryResolve("globalValue", out _));
+
+        var chain = currentScope.WalkAncestors().ToArray();
+        Assert.Equal(3, chain.Length);
+        Assert.Same(currentScope, chain[0]);
+        Assert.Same(parentScope, chain[1]);
+        Assert.Same(globalScope, chain[2]);
+    }
+
+    [Fact]
     public void NameResolver_ReportsDuplicateNamesInSameScope()
     {
         var statements = new Statement[]

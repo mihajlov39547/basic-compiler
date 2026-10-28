@@ -207,12 +207,34 @@ One AST
 
 Without `Visitor`, the AST nodes would accumulate unrelated responsibilities such as printing, resolution, type checking, interpretation, and lowering. The visitor pattern lets one tree support many operations without turning every node class into an enormous god object.
 
+### Scope lookup and the Chain of Responsibility analogy
+
+The compiler also has nested scope chains, but the core concept is lexical scope, not the GoF pattern itself.
+
+```text
+Current Scope
+  ↓
+Parent Scope
+  ↓
+Global Scope
+```
+
+This is the real compiler mechanism: a name is resolved by walking outward through parent environments until the symbol is found or the chain ends. The lookup behavior is analogous to `Chain of Responsibility`, but the true educational concept is `lexical scoping` and the `nested symbol table / environment` model.
+
+We should teach the analogy carefully:
+
+- lexical scoping is the compiler concept
+- scope lookup is the mechanism
+- Chain of Responsibility is a helpful OO interpretation of the lookup behavior
+- the pattern is not the origin of the language feature
+
 The project should teach this progression explicitly:
 
 1. `Composite` for the AST tree
 2. `Visitor` for walk operations over the tree
-3. `Strategy` only where runtime behavior varies by mode or command
-4. `Factory` only when object creation becomes a real source of complexity
+3. nested `Scope` / environment resolution for lexical scoping
+4. `Strategy` only where runtime behavior varies by mode or command
+5. `Factory` only when object creation becomes a real source of complexity
 
 ## Notes for future work
 

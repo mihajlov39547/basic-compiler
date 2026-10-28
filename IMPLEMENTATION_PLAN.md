@@ -51,6 +51,20 @@ interpreter
 
 This is a pipeline, not a Chain of Responsibility. Each stage has a clear input/output contract and the flow is intentionally simple and easy to teach.
 
+### Scope lookup pattern note
+
+The nested scope model is the real language feature here: lexical scoping is implemented with parent-linked environments.
+
+```text
+Current Scope
+  ↓
+Parent Scope
+  ↓
+Global Scope
+```
+
+The lookup logic is a chain of responsibility in a loose OO sense, but the compiler concept is the `Scope` hierarchy and symbol resolution rules. The project should teach the compiler mechanism directly and use the pattern analogy only as a secondary explanation.
+
 ### Pattern: Iterator-like cursor for the lexer
 
 // Activity: Teach the lexer as a sequence of cursor operations instead of as a framework-heavy iterator.
