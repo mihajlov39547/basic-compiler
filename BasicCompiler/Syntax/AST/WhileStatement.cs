@@ -11,5 +11,7 @@ public sealed class WhileStatement : Statement
     public Expression Condition { get; }
     public Statement Body { get; }
 
+    public override TResult Accept<TResult>(IStatementVisitor<TResult> visitor) => visitor.Visit(this);
+
     public override string ToString() => $"while ({Condition}) do {Body};";
 }

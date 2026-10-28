@@ -13,5 +13,7 @@ public sealed class BinaryExpression : Expression
     public string Operator { get; }
     public Expression Right { get; }
 
+    public override TResult Accept<TResult>(IExpressionVisitor<TResult> visitor) => visitor.Visit(this);
+
     public override string ToString() => $"({Left} {Operator} {Right})";
 }

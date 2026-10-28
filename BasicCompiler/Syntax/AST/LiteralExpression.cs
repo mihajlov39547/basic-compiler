@@ -9,5 +9,7 @@ public sealed class LiteralExpression : Expression
 
     public object Value { get; }
 
+    public override TResult Accept<TResult>(IExpressionVisitor<TResult> visitor) => visitor.Visit(this);
+
     public override string ToString() => Value.ToString() ?? "";
 }

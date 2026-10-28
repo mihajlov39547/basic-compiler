@@ -9,5 +9,7 @@ public sealed class BlockStatement : Statement
 
     public IReadOnlyList<Statement> Statements { get; }
 
+    public override TResult Accept<TResult>(IStatementVisitor<TResult> visitor) => visitor.Visit(this);
+
     public override string ToString() => string.Join(" ", Statements.Select(s => s.ToString()));
 }

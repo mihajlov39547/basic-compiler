@@ -13,6 +13,8 @@ public sealed class IfStatement : Statement
     public Statement ThenStatement { get; }
     public Statement? ElseStatement { get; }
 
+    public override TResult Accept<TResult>(IStatementVisitor<TResult> visitor) => visitor.Visit(this);
+
     public override string ToString() => ElseStatement is null
         ? $"if ({Condition}) then {ThenStatement};"
         : $"if ({Condition}) then {ThenStatement} else {ElseStatement};";

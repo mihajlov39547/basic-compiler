@@ -11,5 +11,7 @@ public sealed class UnaryExpression : Expression
     public string Operator { get; }
     public Expression Operand { get; }
 
+    public override TResult Accept<TResult>(IExpressionVisitor<TResult> visitor) => visitor.Visit(this);
+
     public override string ToString() => $"{Operator}{Operand}";
 }

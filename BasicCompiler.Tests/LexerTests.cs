@@ -396,4 +396,44 @@ public class LexerTests
         Assert.Contains("BinaryExpression [LogicalAnd]", dump);
         Assert.True(dump.IndexOf("BinaryExpression [LogicalOr]", StringComparison.Ordinal) < dump.IndexOf("BinaryExpression [LogicalAnd]", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void CompositeVisitor_TraveresExpressionTree()
+    {
+        var expression = new BinaryExpression(
+            new LiteralExpression(1.0),
+            "+",
+            new BinaryExpression(
+                new LiteralExpression(2.0),
+                "*",
+                new LiteralExpression(3.0)));
+
+        var visitor = new CountingVisitor();
+        var count = expression.Accept(visitor);
+
+        Assert.Equal(5, count);
+    }
+
+    private sealed class CountingVisitor : IExpressionVisitor<int>
+    {
+        public int Visit(BinaryExpression expression)
+        {
+            return 1 + expression.Left.Accept(this) + expression.Right.Accept(this);
+        }
+
+        public int Visit(LiteralExpression expression)
+        {
+            return 1;
+        }
+
+        public int Visit(UnaryExpression expression)
+        {
+            return 1 + expression.Operand.Accept(this);
+        }
+
+        public int Visit(VariableExpression expression)
+        {
+            return 1;
+        }
+    }
 }
