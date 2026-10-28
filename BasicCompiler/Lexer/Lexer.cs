@@ -16,6 +16,37 @@ public sealed class Lexer
         _sourceText = new SourceText(_source);
     }
 
+    public char Current => Peek();
+    public int Position => _position;
+    public bool IsAtEnd() => _position >= _source.Length;
+
+    public char Peek(int offset = 0)
+    {
+        var index = _position + offset;
+        return index >= _source.Length ? '\0' : _source[index];
+    }
+
+    public char Advance()
+    {
+        if (IsAtEnd())
+        {
+            return '\0';
+        }
+
+        return _source[_position++];
+    }
+
+    public bool Match(char expected)
+    {
+        if (IsAtEnd() || Peek() != expected)
+        {
+            return false;
+        }
+
+        Advance();
+        return true;
+    }
+
     public IReadOnlyList<Token> Tokenize()
     {
         var tokens = new List<Token>();
@@ -167,25 +198,6 @@ public sealed class Lexer
 
         return token;
     }
-
-    private bool Match(char expected)
-    {
-        if (IsAtEnd() || Peek() != expected)
-        {
-            return false;
-        }
-
-        Advance();
-        return true;
-    }
-
-    private char Advance()
-    {
-        return _source[_position++];
-    }
-
-    private char Peek() => IsAtEnd() ? '\0' : _source[_position];
-    private bool IsAtEnd() => _position >= _source.Length;
 
     private static string DecodeEscapes(string text)
     {

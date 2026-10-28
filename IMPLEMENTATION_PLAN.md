@@ -51,6 +51,35 @@ interpreter
 
 This is a pipeline, not a Chain of Responsibility. Each stage has a clear input/output contract and the flow is intentionally simple and easy to teach.
 
+### Pattern: Iterator-like cursor for the lexer
+
+// Activity: Teach the lexer as a sequence of cursor operations instead of as a framework-heavy iterator.
+
+The lexer naturally operates like a moving cursor over the source text:
+
+```text
+current character
+   ↓
+peek ahead
+   ↓
+recognize token
+   ↓
+advance
+   ↓
+continue until EOF
+```
+
+Students should recognize the mental model:
+
+```csharp
+var current = lexer.Current;
+var next = lexer.Peek(1);
+lexer.Advance();
+var done = lexer.IsAtEnd();
+```
+
+This is conceptually related to the Iterator pattern, but the project does not force `IEnumerator` or a formal iterator abstraction merely to make a pattern checklist look complete. The cursor API is included because it makes the scanning model clear and teachable.
+
 A concise way to describe the pattern is:
 
 ```text

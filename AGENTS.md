@@ -32,6 +32,7 @@ This file is the main entry point for AI agents working in this repository. The 
 - Avoid introducing abstractions before the project has introduced the problem that motivates them.
 - Prefer clarity and teaching value over industrial performance or framework sophistication.
 - Do not replace the core educational stage with a library that performs the concept being taught.
+- Treat the lexer as a cursor-based scanner with a current/peek/advance model. This is iterator-like in teaching terms, but it is not a requirement to force `IEnumerator` or other .NET iterator abstractions onto the project.
 
 ## Feature freeze
 
