@@ -6,6 +6,45 @@ This is the minimal, student-friendly roadmap for the first version of the proje
 
 The compiler should be built in small, inspectable stages. Every phase should produce a readable artifact so students can see how their source program changes as it moves through the pipeline.
 
+## Architecture choices
+
+### Primary pattern: Pipeline / pass-based processing
+
+This is the main design pattern for the project and it is already in use.
+
+The compiler follows a direct sequence of transformations:
+
+```text
+source text
+   ↓
+lexer
+   ↓
+tokens
+   ↓
+parser
+   ↓
+AST
+   ↓
+resolver / binder
+   ↓
+type checker
+   ↓
+interpreter
+```
+
+This is a pipeline, not a Chain of Responsibility. Each stage has a clear input/output contract and the flow is intentionally simple and easy to teach.
+
+### Other patterns to use when appropriate
+
+- [ ] Visitor pattern for AST traversal and evaluation
+  - useful for pretty-printing, interpretation, and type checking
+- [ ] Strategy pattern for CLI commands
+  - useful for `lex`, `parse`, `check`, and `interpret` command modes
+- [ ] Factory pattern for AST / node creation when complexity grows
+  - useful for parser construction and node instantiation without hardcoding object creation
+
+These patterns are optional and should be introduced only when they add clarity to a phase, not before the project needs them.
+
 Target progression:
 
 ```text
@@ -162,6 +201,8 @@ A working project scaffold with no language logic yet.
 
 Phase 1 is complete for the current repo. The implementation follows the intended skeleton closely, with the main difference being that the project currently keeps `SourceSpan` under `Diagnostics` instead of a dedicated `Text` folder. That is acceptable for an initial scaffold and does not block the next phase.
 
+The project already reflects the pipeline architecture in practice: the entry point calls the lexer, parser, and interpreter in order. This pattern is the correct primary design for the compiler and should remain the default structure for the first milestones.
+
 ---
 
 ## Phase 2: Source text and source positions
@@ -283,6 +324,14 @@ Build a syntax tree from the token stream.
 - [ ] Respect expression precedence
 - [ ] Keep spans on AST nodes
 - [ ] Dump AST to a readable text form
+- [ ] Consider `Visitor` pattern for AST traversal
+  - `PrettyPrintVisitor`
+  - `InterpreterVisitor`
+  - `TypeCheckVisitor`
+
+### Design note
+
+The parser and AST remain part of the pipeline, but once the tree becomes richer, a `Visitor` pattern becomes the cleanest way to avoid repeated switch-based logic across multiple compiler passes.
 
 ### Parsing precedence
 
@@ -433,6 +482,15 @@ Turn the project into a usable compiler tool.
 - [ ] Support reading a source file and outputting each stage
 - [ ] Add end-to-end validation against sample programs
 - [ ] Confirm each stage produces inspectable output
+- [ ] Introduce `Strategy` pattern for CLI command dispatch
+  - `LexCommand`
+  - `ParseCommand`
+  - `CheckCommand`
+  - `InterpretCommand`
+
+### Design note
+
+The CLI is a natural place to apply the Strategy pattern once multiple commands exist. This keeps command logic separate and avoids a large `if/else` or `switch` in the entry point.
 
 ### Tests
 
@@ -445,6 +503,14 @@ Turn the project into a usable compiler tool.
 The project behaves like a teaching compiler front end with a working runtime.
 
 ---
+
+## Factory pattern and future extensibility
+
+The project should not over-engineer early, but it should keep a few reusable patterns in mind for future phases.
+
+- [ ] Factory pattern for AST/object construction when parsing becomes more elaborate
+- [ ] Keep pipeline as the default architecture and do not introduce unnecessary abstraction layers too early
+- [ ] Add new patterns only when the next phase actually benefits from them
 
 ## Final MVP success criteria
 
