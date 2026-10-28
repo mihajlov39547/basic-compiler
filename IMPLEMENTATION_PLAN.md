@@ -100,6 +100,29 @@ A diagnostic contains:
 
 The collector makes reporting uniform across lexer, parser, resolver, type checker, and later lowering passes without tying analysis logic to a particular UI format.
 
+### Pattern: Interpreter
+
+The project already implements a real `Interpreter` runtime pass.
+
+```text
+Add
+├── Number(10)
+└── Number(20)
+```
+
+At runtime the interpreter evaluates the AST:
+
+```text
+Visit(Add)
+  → Visit(left) = 10
+  → Visit(right) = 20
+  → 10 + 20 = 30
+```
+
+This is a genuine application of the Interpreter pattern because the compiler is evaluating the language’s own AST according to its semantics. It is a strong teaching example because students are not just reading a toy calculator example; they are executing an actual MiniBASIC program.
+
+The pattern should be taught as a runtime phase inside the compiler pipeline, not as the master architecture of the project.
+
 ### Pattern: Iterator-like cursor for the lexer
 
 // Activity: Teach the lexer as a sequence of cursor operations instead of as a framework-heavy iterator.

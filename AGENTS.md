@@ -207,6 +207,35 @@ One AST
 
 Without `Visitor`, the AST nodes would accumulate unrelated responsibilities such as printing, resolution, type checking, interpretation, and lowering. The visitor pattern lets one tree support many operations without turning every node class into an enormous god object.
 
+### Interpreter pattern
+
+This project already has a real interpreter runtime pass, and it is a genuine application of the `Interpreter` pattern.
+
+```text
+Add
+├── Number(10)
+└── Number(20)
+```
+
+The interpreter evaluates the tree:
+
+```text
+Visit(Add)
+  → Visit(left) = 10
+  → Visit(right) = 20
+  → 10 + 20 = 30
+```
+
+This is not an artificial toy example. It is an actual language runtime for the MiniBASIC AST. The pattern is meaningful because the AST represents the language grammar, and the interpreter evaluates those grammar nodes according to language semantics.
+
+The project should teach it this way:
+
+- `Composite` gives us the AST structure
+- `Visitor` provides traversal over the tree
+- `Interpreter` gives the tree runtime behavior
+
+This is a genuine compiler pattern, but it is still a pass within the broader pipeline, not the entire compiler architecture.
+
 ### Scope lookup and the Chain of Responsibility analogy
 
 The compiler also has nested scope chains, but the core concept is lexical scope, not the GoF pattern itself.
