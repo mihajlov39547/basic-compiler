@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="BasicCompiler.Tests/BasicCompiler.Tests.csproj" />
+  <Project Path="BasicCompiler/BasicCompiler.csproj" />
+</Solution>

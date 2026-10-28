@@ -1,0 +1,41 @@
+## Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio temporary files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Test results
+TestResults/
+*.trx
+
+## NuGet
+packages/
+*.nupkg
+*.snupkg
+
+## Rider / ReSharper
+.idea/
+*.sln.iml
+
+## OS files
+Thumbs.db
+.DS_Store
+
+## Logs
+*.log
+
+## Coverage
+coverage*.xml
+coverage/
+
+## Others
+*.pidb
+*.cache
+*.tmp
