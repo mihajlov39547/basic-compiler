@@ -293,13 +293,15 @@ Every pattern introduced needs the answer:
 
 Examples:
 
-- Composite → AST is hierarchical
+- Composite → AST is hierarchical and recursive; this is the first explicit GoF pattern the course should teach
 - Visitor → many operations traverse AST
 - Symbol Table / Environment → lexical scope and name resolution
 - Interpreter → execute AST semantics
 - Pipeline → compiler consists of ordered transformations
 - Pass → multiple independent IR analyses/transformations
 - Factory → maybe useful for AST construction, but only when justified
+
+The AST is the canonical first Composite example because a binary expression contains child expressions and all nodes share the same `Expression` abstraction. The project should teach this pattern as the natural structure of the compiler, not as an unrelated design exercise.
 
 If a pattern does not solve an educationally visible problem, do not introduce it.
 

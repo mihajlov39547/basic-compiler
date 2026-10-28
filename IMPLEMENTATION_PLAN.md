@@ -88,6 +88,54 @@ SourceText -> Lexer -> Token[] -> Parser -> AST -> NameResolver -> TypeChecker -
 
 Each phase has a defined input and output, and the project is designed to make those transitions visible to students.
 
+### Pattern: Composite (first explicit GoF pattern)
+
+// Activity: Make the AST the first clear GoF example in the course.
+
+The AST is the canonical Composite example in a compiler.
+
+```text
+Expression
+├── LiteralExpression
+├── VariableExpression
+├── UnaryExpression
+├── BinaryExpression
+├── ArrayExpression
+└── CallExpression
+```
+
+A `BinaryExpression` is a branch node containing child `Expression` nodes:
+
+```text
+BinaryExpression
+├── Left: Expression
+└── Right: Expression
+```
+
+This is exactly the Composite pattern:
+
+- leaf nodes and composite nodes participate in the same hierarchy
+- the same `Expression` abstraction works for both simple and nested structures
+- recursive composition naturally models precedence and tree structure
+
+A source like:
+
+```text
+1 + 2 * 3
+```
+
+becomes a tree equivalent to:
+
+```text
+Add
+├── 1
+└── Multiply
+    ├── 2
+    └── 3
+```
+
+This is a strong teaching example because it is visible, recursive, and immediately useful for parsing and later passes.
+
 ### Pattern: Facade
 
 // Activity: Provide one simple compiler entry point for the caller.
