@@ -42,7 +42,13 @@ public sealed class CompilerCommandFactory
     public static string GetUsageText()
     {
         return "Usage: dotnet run --project BasicCompiler.csproj -- [lex|parse|check|interpret] <path-to-sample.bas>\n" +
-               "       dotnet run --project BasicCompiler.csproj -- <path-to-sample.bas>  # defaults to interpret";
+               "       dotnet run --project BasicCompiler.csproj -- sample.bas\n" +
+               "       dotnet run --project BasicCompiler.csproj --  # defaults to the bundled sample.bas\n" +
+               "\nExamples:\n" +
+               "  dotnet run --project BasicCompiler.csproj -- lex sample.bas\n" +
+               "  dotnet run --project BasicCompiler.csproj -- parse sample.bas\n" +
+               "  dotnet run --project BasicCompiler.csproj -- check sample.bas\n" +
+               "  dotnet run --project BasicCompiler.csproj -- interpret sample.bas";
     }
 }
 
@@ -161,12 +167,16 @@ public sealed class InterpretCommand : CompilerCommandBase
         var sourcePath = RequireSourcePath(args);
         var source = ReadSource(sourcePath);
         var tokens = new LexerClass(source).Tokenize();
+        var lexerArtifactPath = ArtifactWriter.WriteLexerTokens(tokens, sourcePath);
         var statements = new Parser(tokens).ParseProgram();
+        var astArtifactPath = ArtifactWriter.WriteAst(statements, sourcePath);
         var interpreter = new Interpreter();
         var result = interpreter.Execute(statements);
 
         Console.WriteLine($"MiniBASIC source: {sourcePath}");
-        Console.WriteLine($"Execution result: {result}");
+        Console.WriteLine($"Lexer artifact saved to: {lexerArtifactPath}");
+        Console.WriteLine($"AST artifact saved to: {astArtifactPath}");
+        Console.WriteLine("\nExecution result: {0}", result);
         return 0;
     }
 }

@@ -1,17 +1,35 @@
 ﻿using BasicCompiler.Cli;
 
+var factory = new CompilerCommandFactory();
+var defaultSamplePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "sample.bas"));
+
 if (args.Length == 0)
 {
+    if (File.Exists(defaultSamplePath))
+    {
+        return factory.Create("interpret").Execute(new[] { defaultSamplePath });
+    }
+
     Console.Error.WriteLine(CompilerCommandFactory.GetUsageText());
     return 1;
 }
 
-var factory = new CompilerCommandFactory();
 var commandName = args[0];
 
 if (commandName is "--help" or "-h" or "help")
 {
     return factory.Create("help").Execute(Array.Empty<string>());
+}
+
+if (commandName is "--sample" or "sample")
+{
+    if (File.Exists(defaultSamplePath))
+    {
+        return factory.Create("interpret").Execute(new[] { defaultSamplePath });
+    }
+
+    Console.Error.WriteLine("The bundled sample.bas file was not found.");
+    return 1;
 }
 
 if (factory.IsKnownCommand(commandName))
