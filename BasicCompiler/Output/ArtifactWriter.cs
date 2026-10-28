@@ -1,4 +1,5 @@
 using BasicCompiler.Lexer;
+using BasicCompiler.Syntax.AST;
 
 namespace BasicCompiler.Output;
 
@@ -25,6 +26,29 @@ public static class ArtifactWriter
             }
 
             lines.Add($"{token.Kind,-16} | {token.Text,-18} | position={token.Position}");
+        }
+
+        Directory.CreateDirectory(outputDirectory);
+        File.WriteAllLines(filePath, lines);
+        return filePath;
+    }
+
+    public static string WriteAst(IReadOnlyList<Statement> statements, string sourcePath)
+    {
+        var outputDirectory = GetOutputDirectory();
+        var filePath = Path.Combine(outputDirectory, "parser-ast.txt");
+
+        var lines = new List<string>
+        {
+            $"Source: {Path.GetFileName(sourcePath)}",
+            $"Generated: {DateTime.UtcNow:O}",
+            $"Statement count: {statements.Count}",
+            string.Empty
+        };
+
+        for (var i = 0; i < statements.Count; i++)
+        {
+            lines.Add($"[{i}] {statements[i]}");
         }
 
         Directory.CreateDirectory(outputDirectory);

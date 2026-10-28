@@ -37,10 +37,12 @@ foreach (var token in tokens)
     }
 }
 
-// Activity 6: Parse the token stream into AST statements.
+// Activity 6: Parse the token stream into AST statements and save the result for later study.
 var parser = new Parser(tokens);
 var statements = parser.ParseProgram();
+var astArtifactPath = ArtifactWriter.WriteAst(statements, sourcePath);
 
+Console.WriteLine($"\nAST artifact saved to: {astArtifactPath}");
 Console.WriteLine("\nAST:");
 foreach (var statement in statements)
 {

@@ -196,4 +196,15 @@ public class LexerTests
         Assert.True(File.Exists(artifactPath));
         Assert.Contains("Var", File.ReadAllText(artifactPath));
     }
+
+    [Fact]
+    public void AstArtifact_IsWrittenToOutputDirectory()
+    {
+        var tokens = new BasicCompiler.Lexer.Lexer("var total := 42\nprint(total)").Tokenize();
+        var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
+        var artifactPath = ArtifactWriter.WriteAst(statements, "demo.bas");
+
+        Assert.True(File.Exists(artifactPath));
+        Assert.Contains("print", File.ReadAllText(artifactPath));
+    }
 }
