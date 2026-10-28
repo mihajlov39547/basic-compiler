@@ -1,5 +1,6 @@
 using BasicCompiler.Diagnostics;
 using BasicCompiler.Lexer;
+using BasicCompiler.Output;
 using BasicCompiler.Text;
 
 namespace BasicCompiler.Tests;
@@ -184,5 +185,15 @@ public class LexerTests
         Assert.Equal(DiagnosticSeverity.Error, bag.Diagnostics[0].Severity);
         Assert.Contains("Missing semicolon", bag.ToString());
         Assert.Contains("Warning", bag.ToString());
+    }
+
+    [Fact]
+    public void LexerArtifact_IsWrittenToOutputDirectory()
+    {
+        var tokens = new BasicCompiler.Lexer.Lexer("var total := 42").Tokenize();
+        var artifactPath = ArtifactWriter.WriteLexerTokens(tokens, "demo.bas");
+
+        Assert.True(File.Exists(artifactPath));
+        Assert.Contains("Var", File.ReadAllText(artifactPath));
     }
 }

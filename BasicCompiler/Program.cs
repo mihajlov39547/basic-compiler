@@ -1,4 +1,5 @@
 ﻿using BasicCompiler.Lexer;
+using BasicCompiler.Output;
 using BasicCompiler.Runtime;
 using BasicCompiler.Syntax;
 
@@ -20,11 +21,13 @@ if (!File.Exists(sourcePath))
 // Activity 2: Read the raw source text into memory.
 var source = File.ReadAllText(sourcePath);
 
-// Activity 5: Lex the source into tokens.
+// Activity 5: Lex the source into tokens and save the result for later study.
 var lexer = new Lexer(source);
 var tokens = lexer.Tokenize();
+var lexerArtifactPath = ArtifactWriter.WriteLexerTokens(tokens, sourcePath);
 
 Console.WriteLine($"MiniBASIC source: {sourcePath}");
+Console.WriteLine($"\nLexer artifact saved to: {lexerArtifactPath}");
 Console.WriteLine("\nTokens:");
 foreach (var token in tokens)
 {
