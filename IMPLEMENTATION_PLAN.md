@@ -445,15 +445,15 @@ Validate variable and expression types before execution.
 
 ### Tasks
 
-- [ ] Define type system
+- [x] Define type system
   - Number
   - String
   - Boolean
-  - Error
-- [ ] Infer types from declarations and literals
-- [ ] Check assignments
-- [ ] Validate boolean conditions
-- [ ] Report invalid type operations
+  - Error represented as diagnostics / unknown in the MVP
+- [x] Infer types from declarations and literals
+- [x] Check assignments
+- [x] Validate boolean conditions
+- [x] Report invalid type operations
 
 ### Examples
 
@@ -463,14 +463,18 @@ Validate variable and expression types before execution.
 
 ### Tests
 
-- [ ] numeric type rules
-- [ ] boolean type rules
-- [ ] incompatible assignment error
-- [ ] comparison semantics
+- [x] numeric type rules
+- [x] boolean type rules
+- [x] incompatible assignment error
+- [x] comparison semantics
 
 ### Deliverable
 
 The compiler catches type mismatches before execution.
+
+### Status
+
+Phase 7 is complete for the MVP. The project has a working `TypeChecker` that infers basic types (`number`, `string`, `bool`), validates assignments, checks `if`/`while` conditions, and emits diagnostics for invalid arithmetic, comparison, and boolean operations. The implementation keeps the model lightweight and educational by using string-based type names rather than introducing a full compiler `Type` abstraction too early.
 
 ---
 

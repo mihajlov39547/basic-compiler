@@ -238,6 +238,46 @@ public class LexerTests
     }
 
     [Fact]
+    public void TypeChecker_RejectsNonBooleanIfCondition()
+    {
+        var statements = new Statement[]
+        {
+            new IfStatement(new LiteralExpression("hello"), new PrintStatement(new LiteralExpression("done")), null)
+        };
+
+        var diagnostics = new BasicCompiler.Semantics.TypeChecker().Check(statements);
+
+        Assert.Contains(diagnostics, d => d.Message.Contains("bool", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void TypeChecker_RejectsInvalidArithmeticTypes()
+    {
+        var statements = new Statement[]
+        {
+            new PrintStatement(new BinaryExpression(new LiteralExpression("hello"), "+", new LiteralExpression(1.0)))
+        };
+
+        var diagnostics = new BasicCompiler.Semantics.TypeChecker().Check(statements);
+
+        Assert.Contains(diagnostics, d => d.Message.Contains("numeric", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void TypeChecker_RejectsAssignmentTypeMismatch()
+    {
+        var statements = new Statement[]
+        {
+            new VariableDeclaration("count", new LiteralExpression(1.0)),
+            new AssignmentStatement("count", new LiteralExpression(true))
+        };
+
+        var diagnostics = new BasicCompiler.Semantics.TypeChecker().Check(statements);
+
+        Assert.Contains(diagnostics, d => d.Message.Contains("assignment", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void LexerArtifact_IsWrittenToOutputDirectory()
     {
         var tokens = new BasicCompiler.Lexer.Lexer("var total := 42").Tokenize();
