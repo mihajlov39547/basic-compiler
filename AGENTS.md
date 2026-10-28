@@ -328,6 +328,164 @@ The repository should evolve in a teaching-friendly sequence:
 
 This sequence should stay visible in the project structure so students can trace the path from source code to execution.
 
+## Advanced compiler topics for later study
+
+This section is intentionally separate from the core beginner path. The project should remain small and understandable first, and only add these ideas when the compiler has a concrete reason to grow.
+
+### Lowering / desugaring
+
+A core compiler idea is that higher-level syntax can be lowered into a simpler internal form.
+
+Example for MiniBASIC:
+
+```text
+for i := 1 to 10
+    print(i)
+next
+```
+
+can eventually become a simpler while-based form:
+
+```text
+var i := 1
+
+while i <= 10
+    print(i)
+    i := i + 1
+endwhile
+```
+
+This is not just syntax sugar for convenience; it is a fundamental compiler transformation pattern: rich syntax is rewritten into a more uniform internal representation.
+
+The important teaching lesson is:
+
+```text
+AST
+  ↓
+lowered AST / IR
+  ↓
+bytecode or execution representation
+```
+
+This is the right place to teach `Lowering` and `Desugaring`, because the transformation lowers the conceptual burden for later passes.
+
+### Pass-based compiler pipeline
+
+Once optimization or analysis work grows, the compiler naturally turns into a sequence of passes.
+
+```text
+IR
+  ↓
+ConstantFoldingPass
+  ↓
+Verifier
+  ↓
+ConstantPropagationPass
+  ↓
+Verifier
+  ↓
+DeadCodeEliminationPass
+```
+
+The pattern is straightforward:
+
+```text
+IPass<T>
+    Run(T input) -> T output
+```
+
+This is the natural extension of the project’s existing pipeline model and is a better teaching concept than forcing a large framework onto the compiler.
+
+### Strategy for optimization and backend selection
+
+When the compiler must vary behavior by mode or target, `Strategy` becomes useful.
+
+```text
+OptimizationStrategy
+    ├── None
+    ├── Basic
+    └── Aggressive
+```
+
+The same idea applies later to backend selection:
+
+```text
+IBackend
+    ├── BytecodeBackend
+    ├── LLVMBackend
+    └── WasmBackend
+```
+
+This is a real extensibility pattern when the project has multiple execution targets or optimization levels.
+
+### Builder / emitter for bytecode
+
+If a bytecode backend is added later, a `BytecodeEmitter` is a strong design choice.
+
+```text
+BytecodeEmitter
+    ├── Emit()
+    ├── EmitJump()
+    ├── CreateLabel()
+    ├── MarkLabel()
+    └── PatchJump()
+```
+
+This is much cleaner than representing bytecode as raw arrays being patched by hand across many places. It matches the builder/emitter idea well without being required for the initial educational compiler.
+
+### Command-like instruction model
+
+A VM instruction set can be modeled as commands or instruction records rather than a one-class-per-opcode explosion.
+
+```text
+Instruction
+    ├── opcode
+    ├── operand(s)
+    └── source location
+```
+
+This is conceptually useful and teaches the difference between a runtime instruction representation and a full object-oriented command hierarchy. The project should avoid creating dozens of tiny command classes unless that structure becomes genuinely necessary.
+
+### VM state and stack frames
+
+Later runtime work naturally introduces machine state:
+
+```text
+VirtualMachineState
+    ├── instructionPointer
+    ├── operandStack
+    ├── callStack
+    ├── locals
+    └── currentFunction
+```
+
+This is a crucial concept for students, but it is a runtime concern, not a reason to force a GoF pattern onto the whole design. The important teaching idea is the state machine of execution, not the pattern name.
+
+### Patterns to avoid forcing
+
+The project should explicitly resist a few anti-patterns:
+
+- `Singleton` for global compiler state
+- `Factory` everywhere for every node creation
+- “one design pattern per class” thinking
+- turning every subsystem into a formal GoF pattern where a simple value or pass is enough
+
+The right rule is simple:
+
+> a pattern is a vocabulary for recurring engineering problems, not a checklist to satisfy.
+
+### Recommended ordering
+
+For this project, the deliberate teaching order remains:
+
+1. `Composite` for the AST
+2. `Visitor` for traversals
+3. nested `Scope` and symbol binding for lexical scoping
+4. `DiagnosticBag` as the shared reporting structure
+5. `Interpreter` as the runtime evaluation pass
+6. `Lowering` and compiler passes as the next scale-up topic
+7. `Strategy`, `Builder`, and VM/runtime structures only when the project actually grows
+
 ## Guardrail summary
 
 MiniBASIC is not the product. The observable journey from source code to execution is the product.

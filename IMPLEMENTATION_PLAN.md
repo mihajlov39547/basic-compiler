@@ -141,6 +141,16 @@ advance
 continue until EOF
 ```
 
+### Future work and advanced topics
+
+This implementation plan is intentionally limited to the current educational path.
+
+Advanced compiler topics such as lowering, pass pipelines, optimization, bytecode, backend strategy, and VM/runtime extensions belong in the dedicated future-work document:
+
+- [ADVANCED_FUTURE_WORK.md](ADVANCED_FUTURE_WORK.md)
+
+The project should keep the current architecture simple and explicit, and only introduce those topics when the core pipeline is already well understood.
+
 Students should recognize the mental model:
 
 ```csharp

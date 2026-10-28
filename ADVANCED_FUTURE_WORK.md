@@ -1,86 +1,99 @@
 # Advanced / Future Work for MiniBASIC
 
-This document contains ideas that are valuable for the project, but they are intentionally not part of the initial v0.1 roadmap.
+This document collects ideas that are valuable for the project, but intentionally not part of the initial educational path.
 
-The goal is to keep the main implementation plan focused, simple, and teachable. Advanced topics can be introduced later as separate learning milestones.
+The core project should remain small, explicit, and inspectable. Advanced topics are best introduced only after students can explain the previous stage clearly.
 
 ---
 
-## 1. Arrays and collections
+## 1. Lowering and desugaring
 
 Possible future work:
 
-- `Array<T>` type
-- literal array syntax such as `[1, 2, 3]`
-- index expressions like `values[0]`
-- bounds checking
-- array assignment and mutation
+- transform `for` loops into while-style loops
+- desugar `if`/`else` constructs into branch-based control flow
+- lower user-friendly syntax into a simpler internal form
+- introduce a small IR layer for later passes
 
-Why this is advanced:
+Why this is important:
 
-- it requires deeper type rules,
-- richer AST nodes,
-- additional runtime memory model,
-- and more semantic checks.
+- lowering is a central compiler transformation concept,
+- it shows that front-end syntax is often rewritten into a uniform machine-friendly form,
+- and it prepares the project for optimization and code generation.
 
----
-
-## 2. Functions and procedural abstraction
-
-Possible future work:
-
-- function declarations
-- parameter binding
-- return statements
-- call expressions
-- recursion
-- call frames
-- stack-based evaluation
-
-Why this is advanced:
-
-- it requires scope and symbol management beyond simple variables,
-- function calls affect runtime models,
-- and it introduces the idea of execution frames.
+This is one of the first genuinely advanced topics worth teaching after the base compiler works.
 
 ---
 
-## 3. Intermediate representation (IR)
-
-Possible future work:
-
-- `IRFunction`
-- `IRBlock`
-- `IRInstruction`
-- `IRLabel`
-- lowering from typed AST into stack or SSA-like instructions
-
-Why this is valuable:
-
-- IR makes compiler stages more explicit,
-- it separates analysis from code generation,
-- it simplifies optimization.
-
-Why it is not in the core plan:
-
-- it adds a second representation layer that students must understand,
-- and it is conceptually harder than the initial parser and runtime pipeline.
-
----
-
-## 4. Optimization passes
+## 2. Compiler passes and optimization pipeline
 
 Possible future work:
 
 - constant folding
 - constant propagation
 - dead code elimination
-- simple pass pipeline
+- verification passes that check invariants
+- a pass pipeline with explicit input/output contracts
 
-Why it matters:
+Why this matters:
 
-- optimization is one of the most important compiler ideas,
-- but it is best introduced after the base compiler works.
+- real compiler work is usually a sequence of passes,
+- not one monolithic block of logic,
+- and the project already follows a pass-based pipeline in spirit.
+
+The teaching model should stay:
+
+```text
+AST
+  ↓
+resolved and typed AST
+  ↓
+IR or lowered form
+  ↓
+optimization passes
+  ↓
+execution or code generation
+```
+
+---
+
+## 3. Arrays and collections
+
+Possible future work:
+
+- `array` type support
+- literal arrays such as `[1, 2, 3]`
+- index expressions like `values[0]`
+- bounds checking
+- mutation and assignment semantics
+
+Why this is advanced:
+
+- arrays require richer type rules,
+- a more expressive AST,
+- and a runtime storage model beyond simple scalar variables.
+
+This is a natural next step after the project has a stable symbol table and type checker.
+
+---
+
+## 4. Functions and procedural abstraction
+
+Possible future work:
+
+- function declarations
+- parameters and returns
+- recursive calls
+- call expressions
+- call frames and runtime stack behavior
+
+Why this is advanced:
+
+- function binding introduces more complex scope management,
+- runtime evaluation requires activation records,
+- and the program model becomes more realistic.
+
+This is an excellent follow-up to lexical scoping and symbol binding.
 
 ---
 
@@ -89,38 +102,40 @@ Why it matters:
 Possible future work:
 
 - `OpCode` enum
-- instruction encoding
 - constant pool
-- operand stack
-- local variables
-- branch instructions
-- print and halt instructions
-- disassembler
+- stack-based execution
+- local variable storage
+- jumps and branches
+- simple VM instruction set
+- disassembler or debugging output
 
 Why this is valuable:
 
-- it connects the compiler to a machine-like execution model,
-- it demonstrates how high-level code becomes runnable instructions.
+- it shows how a high-level language becomes executable instructions,
+- and it connects the compiler to a more machine-like runtime.
 
 Why it is not in the core plan:
 
-- it adds a new layer of semantics,
-- the bytecode model can distract from the primary educational goal when the language itself is still being learned.
+- it adds another substantial execution layer,
+- and it can distract from the original educational goal if introduced too early.
 
 ---
 
-## 6. More advanced type features
+## 6. Backend strategy and optimization modes
 
 Possible future work:
 
-- type inference improvements
-- union types
-- nullable values
-- explicit conversions
-- array element type validation
-- user-defined record-like data structures
+- interpreter backend
+- bytecode backend
+- optimized backend
+- explicit `OptimizationStrategy` object
 
-These are useful, but they are not necessary for the first compiler milestone.
+Why it matters:
+
+- once the compiler has multiple execution modes, the selection logic becomes a real design concern,
+- and `Strategy` is a clean fit for that problem.
+
+This is a meaningful pattern for a later stage, not the first stage of the course.
 
 ---
 
@@ -128,48 +143,50 @@ These are useful, but they are not necessary for the first compiler milestone.
 
 Possible future work:
 
-- pretty-printer for AST
-- code formatting
-- error recovery in the parser
-- source-aware formatting for diagnostics
-- incremental compilation
-- AST / symbol dump exporters
+- pretty-printed AST output
+- richer diagnostics with source context
+- parser recovery and error continuation
+- artifact snapshots for each compiler phase
+- incremental compilation support
 
-These are good quality-of-life improvements, but they are not required for the initial curriculum.
+Why it belongs later:
+
+- these features improve the developer experience,
+- but they are not required to understand the compiler itself.
 
 ---
 
-## 8. Full compiler pipeline experiments
+## 8. Patterns to teach later, not earlier
 
-Possible future work:
+The project should not force every idea into a formal GoF pattern. The right advanced topics are:
 
-- compare AST interpreter output with VM output
-- emit all intermediate artifacts to a folder
-- build a command-line driver with stages like `lex`, `parse`, `check`, `run`
-- produce artifact snapshots for educational demos
+- lowering / desugaring
+- compiler pass composition
+- strategy for backend or optimization choice
+- emitter / builder for bytecode output
+- runtime state and stack frames
 
-These are excellent capstone tasks once the core language is working.
+These are meaningful additions to the course, but they should be introduced at the point when the underlying compiler concepts are already understood.
 
 ---
 
 ## Suggested order for future work
 
-Once the v0.1 MVP is complete, the natural next additions are:
+Once the base compiler is stable, the most natural next steps are:
 
-1. arrays
-2. functions
-3. better symbol and type modeling
-4. IR and lowering
-5. optimization
-6. bytecode generation and VM
-7. advanced tooling and end-to-end compiler demos
+1. lowering and IR
+2. optimization passes
+3. arrays
+4. functions and call frames
+5. bytecode and VM
+6. backend strategy and tooling improvements
 
-This sequence keeps the learning curve steady and avoids overwhelming students prematurely.
+This sequence keeps the learning curve steady and avoids overwhelming students before they understand the main pipeline.
 
 ---
 
 ## Final rule
 
-Advanced compiler concepts should only be introduced when students can already explain the previous stage clearly.
+Advanced compiler concepts should be introduced only when the earlier stages are already clear.
 
-The main goal of the project is to teach the pipeline, not to jump straight into an industrial compiler architecture.
+The project’s real product is the educational journey from source text to execution, not a premature jump into a full industrial compiler architecture.
