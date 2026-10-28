@@ -265,18 +265,22 @@ Support helpful and structured compiler errors.
 
 ### Tasks
 
-- [ ] Implement `Diagnostic`
+- [x] Implement `Diagnostic`
   - severity
   - message
   - source span
-- [ ] Implement `DiagnosticBag`
-- [ ] Support multiple errors in one compilation
-- [ ] Format diagnostics for console output
-- [ ] Add tests for diagnostic formatting
+- [x] Implement `DiagnosticBag`
+- [x] Support multiple errors in one compilation
+- [x] Format diagnostics for console output
+- [x] Add tests for diagnostic formatting
 
 ### Deliverable
 
 A simple diagnostic system with precise source locations.
+
+### Status
+
+Phase 3 is complete for the MVP. The project now has a minimal diagnostic accumulator with severity, span, and formatted output suitable for teaching and later compiler front-end error reporting.
 
 ---
 

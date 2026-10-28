@@ -1,3 +1,4 @@
+using BasicCompiler.Diagnostics;
 using BasicCompiler.Lexer;
 using BasicCompiler.Text;
 
@@ -170,5 +171,18 @@ public class LexerTests
         Assert.Equal(1, span.Line);
         Assert.Equal(0, span.Column);
         Assert.Equal(2, span.Length);
+    }
+
+    [Fact]
+    public void DiagnosticBag_CollectsAndFormatsMultipleDiagnostics()
+    {
+        var bag = new BasicCompiler.Diagnostics.DiagnosticBag();
+        bag.ReportError("Missing semicolon.", new SourceSpan(4, 1, 1, 5));
+        bag.ReportWarning("Expression is a little unusual.", new SourceSpan(10, 1, 2, 1));
+
+        Assert.Equal(2, bag.Diagnostics.Count);
+        Assert.Equal(DiagnosticSeverity.Error, bag.Diagnostics[0].Severity);
+        Assert.Contains("Missing semicolon", bag.ToString());
+        Assert.Contains("Warning", bag.ToString());
     }
 }
