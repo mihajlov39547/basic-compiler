@@ -228,13 +228,34 @@ We should teach the analogy carefully:
 - Chain of Responsibility is a helpful OO interpretation of the lookup behavior
 - the pattern is not the origin of the language feature
 
+### Symbol table and name binding
+
+`SymbolTable` is a compiler-specific data structure rather than a classic GoF pattern.
+
+```text
+"a"       -> VariableSymbol #1 : Number
+"message" -> VariableSymbol #2 : String
+"print"   -> FunctionSymbol #3
+```
+
+The important semantic step is binding: the resolver transforms a raw identifier into a symbol-aware reference.
+
+```text
+VariableExpression("a")
+    ↓ resolves in current scope
+BoundVariableExpression(symbol = VariableSymbol#1)
+```
+
+This project models the same idea in a lightweight form by attaching a `BoundSymbol` to the variable expression after successful resolution.
+
 The project should teach this progression explicitly:
 
 1. `Composite` for the AST tree
 2. `Visitor` for walk operations over the tree
 3. nested `Scope` / environment resolution for lexical scoping
-4. `Strategy` only where runtime behavior varies by mode or command
-5. `Factory` only when object creation becomes a real source of complexity
+4. symbol table binding for identifier-to-symbol mapping
+5. `Strategy` only where runtime behavior varies by mode or command
+6. `Factory` only when object creation becomes a real source of complexity
 
 ## Notes for future work
 

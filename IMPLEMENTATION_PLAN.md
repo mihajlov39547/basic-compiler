@@ -65,6 +65,20 @@ Global Scope
 
 The lookup logic is a chain of responsibility in a loose OO sense, but the compiler concept is the `Scope` hierarchy and symbol resolution rules. The project should teach the compiler mechanism directly and use the pattern analogy only as a secondary explanation.
 
+### Symbol table and binding note
+
+The symbol table is a compiler-domain structure, not a classic GoF pattern. It answers the question: what does this identifier refer to?
+
+The semantic transformation is the important part:
+
+```text
+VariableExpression("a")
+    ↓
+BoundVariableExpression(symbol = VariableSymbol#1)
+```
+
+This project models the same idea by attaching a `BoundSymbol` to each resolved `VariableExpression`, so the AST contains a direct reference to the symbol it resolved against.
+
 ### Pattern: Iterator-like cursor for the lexer
 
 // Activity: Teach the lexer as a sequence of cursor operations instead of as a framework-heavy iterator.

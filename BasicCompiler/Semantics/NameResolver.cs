@@ -106,10 +106,12 @@ public sealed class NameResolver
                 break;
 
             case VariableExpression variable:
-                if (!_currentScope.TryResolve(variable.Name, out _))
+                if (!_currentScope.TryResolve(variable.Name, out var symbol))
                 {
                     throw new InvalidOperationException($"Variable '{variable.Name}' is not declared.");
                 }
+
+                variable.BoundSymbol = symbol as VariableSymbol;
                 break;
 
             case LiteralExpression:

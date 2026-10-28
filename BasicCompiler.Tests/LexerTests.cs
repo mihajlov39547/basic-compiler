@@ -267,6 +267,24 @@ public class LexerTests
     }
 
     [Fact]
+    public void NameResolver_BindsVariableExpressionsToTheirSymbols()
+    {
+        var statements = new Statement[]
+        {
+            new VariableDeclaration("a", new LiteralExpression(10.0)),
+            new PrintStatement(new VariableExpression("a"))
+        };
+
+        var resolver = new BasicCompiler.Semantics.NameResolver();
+        resolver.Resolve(statements);
+
+        var variable = (VariableExpression)((PrintStatement)statements[1]).Expression;
+        Assert.NotNull(variable.BoundSymbol);
+        Assert.Equal("a", variable.BoundSymbol!.Name);
+        Assert.Equal("unknown", variable.BoundSymbol.TypeName);
+    }
+
+    [Fact]
     public void NameResolver_ReportsDuplicateNamesInSameScope()
     {
         var statements = new Statement[]
