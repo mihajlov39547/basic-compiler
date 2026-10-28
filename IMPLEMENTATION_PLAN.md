@@ -1,10 +1,10 @@
 # MiniBASIC Implementation Plan
 
-This plan is the project roadmap for an educational compiler. It should be followed in order, with each phase introducing a small, inspectable compiler concept before moving deeper into the pipeline.
+This is the minimal, student-friendly roadmap for the first version of the project. The goal is to keep the compiler small, observable, and teachable.
 
 ## Core teaching goal
 
-The compiler should be deliberately observable. Every phase should be able to emit a human-readable artifact so students can inspect how source text changes as it moves through the compiler pipeline.
+The compiler should be built in small, inspectable stages. Every phase should produce a readable artifact so students can see how their source program changes as it moves through the pipeline.
 
 Target progression:
 
@@ -27,52 +27,30 @@ Type Checker
    ↓
 typed-ast.txt
    ↓
-Lowering
-   ↓
-ir.txt
-   ↓
-Optimizer
-   ↓
-optimized-ir.txt
-   ↓
-Bytecode Generator
-   ↓
-program.mbc
-   ↓
-Disassembler
-   ↓
-bytecode.txt
-   ↓
-MiniBASIC VM
+Reference Interpreter
    ↓
 program output
 ```
 
-This is a better teaching model than a single source → execute step.
+This project is about learning compiler concepts, not building a production language runtime.
 
 ---
 
-## Phase 0: Definition of the compiler
+## MiniBASIC v0.1 language scope
 
-### Goal
-Freeze the first language version and keep the implementation small.
+The first version should stay intentionally small.
 
-### MiniBASIC v0.1 language scope
-
-Supported types:
+### Supported types
 
 - Number
 - String
 - Boolean
-- Array<T>
-- Void (for function returns when needed)
 
-Supported syntax:
+### Supported features
 
 ```text
 var a := 10
 var name := "Marko"
-var values := [1, 2, 3]
 
 if a = 10 || a = 20 then
     print(name)
@@ -85,31 +63,53 @@ while a < 20 do
 endwhile
 ```
 
-Future functions:
+### Explicit non-goals for v0.1
 
-```text
-function add(a: Number, b: Number): Number
-    return a + b
-endfunction
+Do not add these in the main implementation plan:
 
-var result := add(10, 20)
-```
+- arrays as a first-class feature
+- functions and recursion
+- modules or namespaces
+- generics
+- classes or objects
+- optimizer passes
+- IR lowering
+- bytecode VM architecture
+- advanced runtime machinery
 
-### Guardrail
+These belong in a separate future-work document.
 
-Do not add classes, inheritance, generics, modules, objects, or other large production features in v0.1.
+---
+
+## Phase 0: Definition of the compiler
+
+### Goal
+Freeze a small first-language version and keep the scope stable.
+
+### Tasks
+
+- [ ] Define the supported syntax for v0.1
+- [ ] Define the supported types
+- [ ] Define the accepted statements and expressions
+- [ ] Keep feature scope intentionally small
+- [ ] Write examples that are easy to understand
+
+### Deliverable
+
+A clear v0.1 language definition that the rest of the project can implement.
 
 ---
 
 ## Phase 1: Repository structure and project skeleton
 
 ### Goal
-Create the project scaffold and build infrastructure before implementing the lexer.
+Create a clean project layout before implementing compiler features.
 
 ### Required project structure
 
 ```text
-MiniBasic/
+BasicCompiler/
+    BasicCompiler.csproj
     Program.cs
     Text/
         SourceText.cs
@@ -118,7 +118,7 @@ MiniBasic/
     Diagnostics/
         Diagnostic.cs
         DiagnosticBag.cs
-    Lexing/
+    Lexer/
         Token.cs
         TokenKind.cs
         Lexer.cs
@@ -129,113 +129,81 @@ MiniBasic/
             Expression.cs
             Statement.cs
             ...
-    Binding/
+    Semantics/
         Symbol.cs
-        VariableSymbol.cs
-        FunctionSymbol.cs
         Scope.cs
         Binder.cs
-        Types.cs
-    Lowering/
-        Lowerer.cs
-    IR/
-        ...
-    Optimization/
-        ...
-    Bytecode/
-        OpCode.cs
-        Instruction.cs
-        BytecodeModule.cs
-        BytecodeEmitter.cs
-        Disassembler.cs
     Runtime/
         Value.cs
-        VirtualMachine.cs
-        CallFrame.cs
-    Dumping/
-        TokenDumper.cs
-        AstDumper.cs
-        SymbolDumper.cs
-    tests/
-        MiniBasic.Tests/
+        Interpreter.cs
+    Tests/
+        BasicCompiler.Tests/
 ```
 
 ### Tasks
 
-- [ ] Create a modern C# .NET console app
-- [ ] Create a test project
-- [ ] Create folder structure and namespaces
-- [ ] Add a simple CLI entry point
+- [ ] Create the .NET console app
+- [ ] Create the test project
+- [ ] Create the folder structure
+- [ ] Add a basic CLI entry point
 - [ ] Read a source file from disk
-- [ ] Print compiler version information
-- [ ] Return meaningful exit codes
-- [ ] Keep compiler components independent from console I/O
+- [ ] Print a compiler banner
+- [ ] Keep logic separate from console output
 
 ### Deliverable
 
-A working skeleton with no lexer/parser implementation yet.
+A working project scaffold with no language logic yet.
 
 ---
 
 ## Phase 2: Source text and source positions
 
 ### Goal
-Provide the infrastructure every compiler phase needs for diagnostics and source tracking.
+Give every compiler stage a reliable way to track source positions.
 
 ### Tasks
 
 - [ ] Implement `SourceText`
   - filename
   - full source text
-  - line mappings
-  - character access
+  - line mapping
+  - character indexing
 - [ ] Implement `SourcePosition`
 - [ ] Implement `SourceSpan`
-- [ ] Every later object can carry a source span
-- [ ] Add tests for line/column handling
-
-### Example diagnostic
-
-```text
-program.bas:4:12
-Unexpected character '@'.
-4 | var x := 12 @ 5
-                 ^
-```
+- [ ] Add tests for line/column calculations
 
 ### Deliverable
 
-Source positions and source text should exist before any parsing logic.
+The compiler can report where errors happened in source files.
 
 ---
 
 ## Phase 3: Diagnostics
 
 ### Goal
-Make compiler errors structured, informative, and educational.
+Support helpful and structured compiler errors.
 
 ### Tasks
 
 - [ ] Implement `Diagnostic`
   - severity
-  - error code
   - message
   - source span
 - [ ] Implement `DiagnosticBag`
 - [ ] Support multiple errors in one compilation
-- [ ] Add CLI diagnostic formatting
+- [ ] Format diagnostics for console output
 - [ ] Add tests for diagnostic formatting
 
 ### Deliverable
 
-A diagnostic system that is simple yet useful for teaching source locations.
+A simple diagnostic system with precise source locations.
 
 ---
 
 ## Phase 4: Lexer
 
 ### Goal
-Turn source text into a token stream.
+Turn source text into tokens.
 
 ### Tasks
 
@@ -245,12 +213,10 @@ Turn source text into a token stream.
   - text
   - value
   - source span
-- [ ] Implement basic lexer behavior
-  - whitespace skipping
-  - identifiers
-  - keywords
-  - numbers
-- [ ] Add operator lexing
+- [ ] Skip whitespace
+- [ ] Recognize identifiers and keywords
+- [ ] Recognize numbers and strings
+- [ ] Recognize operators
   - `+ - * /`
   - `:=`
   - `=`
@@ -258,21 +224,9 @@ Turn source text into a token stream.
   - `< <=`
   - `> >=`
   - `&& ||`
-- [ ] Add string literal lexing and escapes
-- [ ] Add comments
-- [ ] Add invalid character handling
-- [ ] Add unterminated string handling
-- [ ] Create first parse artifact: `tokens.txt`
-
-### Example output
-
-```text
-0000 VAR        "var"           @ 1:1
-0001 IDENTIFIER "a"             @ 1:5
-0002 ASSIGN     ":="            @ 1:7
-0003 NUMBER     "10"     10     @ 1:10
-0004 EOF
-```
+- [ ] Handle invalid characters
+- [ ] Handle unterminated strings
+- [ ] Emit `EOF`
 
 ### Tests
 
@@ -288,38 +242,35 @@ Turn source text into a token stream.
 - [ ] invalid character diagnostic
 - [ ] unterminated string diagnostic
 
+### Deliverable
+
+A working token stream for the language.
+
 ---
 
 ## Phase 5: Parser and AST
 
 ### Goal
-Turn tokens into a syntax tree.
+Build a syntax tree from the token stream.
 
 ### Tasks
 
-- [ ] Define a base `SyntaxNode`
+- [ ] Define `SyntaxNode`
 - [ ] Define `Expression` and `Statement`
-- [ ] Create AST nodes for:
-  - `NumberExpression`
-  - `StringExpression`
-  - `BooleanExpression`
-  - `VariableExpression`
-  - `BinaryExpression`
-  - `UnaryExpression`
-  - `VariableDeclaration`
-  - `AssignmentStatement`
-  - `PrintStatement`
-  - `BlockStatement`
-- [ ] Implement expression precedence correctly
-- [ ] Implement statement parsing
-  - variable declaration
+- [ ] Add AST nodes for:
+  - literal expressions
+  - variable expressions
+  - binary expressions
+  - unary expressions
   - assignment
-  - print
+  - variable declaration
   - block
+  - print
   - if/else
   - while
-- [ ] Retain source spans on AST nodes
-- [ ] Create AST dump output: `ast.txt`
+- [ ] Respect expression precedence
+- [ ] Keep spans on AST nodes
+- [ ] Dump AST to a readable text form
 
 ### Parsing precedence
 
@@ -341,50 +292,45 @@ Turn tokens into a syntax tree.
 - [ ] while loop
 - [ ] AST golden tests
 
+### Deliverable
+
+A parser that builds a meaningful syntax tree from valid MiniBASIC code.
+
 ---
 
 ## Phase 6: Name resolution and symbol table
 
 ### Goal
-Bind identifiers to declarations and detect undefined or duplicate names.
+Bind names to declarations and catch duplicate or undefined variables.
 
 ### Tasks
 
 - [ ] Implement `Symbol`
 - [ ] Implement `VariableSymbol`
-- [ ] Implement `FunctionSymbol`
 - [ ] Implement `Scope`
 - [ ] Implement binder / resolver
-- [ ] Track references to symbols
-- [ ] Implement scope lookup by parent chain
+- [ ] Ensure nested scopes resolve properly
 - [ ] Detect duplicate declarations
 - [ ] Detect unresolved names
-- [ ] Produce `symbols.txt`
-
-### Example
-
-```text
-GLOBAL SCOPE
-  a : Variable #1
-  message : Variable #2
-
-IF BLOCK
-  b : Variable #3
-```
+- [ ] Produce a simple symbol dump
 
 ### Tests
 
-- [ ] simple variable resolution
+- [ ] resolve simple variable
 - [ ] duplicate declaration rejection
 - [ ] undefined variable detection
-- [ ] shadowing behavior
+- [ ] nested scope behavior
+
+### Deliverable
+
+The compiler can determine which names are valid and where they are declared.
 
 ---
 
 ## Phase 7: Type checking
 
 ### Goal
-Add static typing to expressions and declarations.
+Validate variable and expression types before execution.
 
 ### Tasks
 
@@ -392,36 +338,35 @@ Add static typing to expressions and declarations.
   - Number
   - String
   - Boolean
-  - Array
-  - Void
   - Error
-- [ ] Infer variable types from initializers
-- [ ] Check assignment compatibility
+- [ ] Infer types from declarations and literals
+- [ ] Check assignments
 - [ ] Validate boolean conditions
-- [ ] Validate array element access
-- [ ] Produce `typed-ast.txt`
-- [ ] Write explicit type errors with source spans
+- [ ] Report invalid type operations
 
 ### Examples
 
 - `10 + 20` => Number
-- `"hello" - 20` => error
-- `var x := 10` => `x : Number`
+- `"hello" + " world"` => String
+- `if "x" then` => error
 
 ### Tests
 
 - [ ] numeric type rules
 - [ ] boolean type rules
 - [ ] incompatible assignment error
-- [ ] comparison types
-- [ ] array element type validation
+- [ ] comparison semantics
+
+### Deliverable
+
+The compiler catches type mismatches before execution.
 
 ---
 
-## Phase 8: Reference AST interpreter
+## Phase 8: Reference interpreter
 
 ### Goal
-Provide the simplest working execution model before lowering to bytecode.
+Provide the simplest working execution model.
 
 ### Tasks
 
@@ -429,306 +374,84 @@ Provide the simplest working execution model before lowering to bytecode.
   - NumberValue
   - StringValue
   - BooleanValue
-  - ArrayValue
-  - VoidValue
-- [ ] Implement `RuntimeEnvironment`
-- [ ] Implement expression evaluation
+- [ ] Implement a runtime environment
+- [ ] Evaluate expressions
   - literals
   - variables
   - arithmetic
   - comparisons
-  - boolean operations
-- [ ] Implement statements
+  - boolean logic
+- [ ] Execute statements
   - assignment
   - print
   - if/else
   - while
-- [ ] Create `interpret` command path
+- [ ] Add a command path like `interpret`
 
 ### Key rule
 
-The AST interpreter is a reference implementation. Later, bytecode execution should produce the same result for the same program.
+This interpreter is a teaching reference. It should be easy to read and easy to debug.
 
 ### Tests
 
 - [ ] arithmetic evaluation
 - [ ] variable assignment
 - [ ] if execution
-- [ ] while execution
+- [ ] while loop execution
 - [ ] output correctness
-
----
-
-## Phase 9: Lowering to IR
-
-### Goal
-Add an intermediate representation between typed AST and bytecode.
-
-### Tasks
-
-- [ ] Define IR model
-  - `IRFunction`
-  - `IRBlock`
-  - `IRInstruction`
-  - `IRValue`
-  - `IRLabel`
-- [ ] Lower expressions to instructions
-- [ ] Lower if/else to branch instructions
-- [ ] Lower while to branch instructions
-- [ ] Produce `ir.txt`
-
-### Example
-
-```text
-%0 = const 10
-%1 = const 20
-%2 = add %0, %1
-store x, %2
-```
-
-### Tests
-
-- [ ] expression lowering
-- [ ] if lowering
-- [ ] while lowering
-- [ ] IR golden output
-
----
-
-## Phase 10: Optimization passes
-
-### Goal
-Show how a compiler can transform IR while preserving semantics.
-
-### Tasks
-
-- [ ] Create a simple `ICompilerPass` interface or equivalent minimal abstraction
-- [ ] Implement constant folding
-- [ ] Implement constant propagation
-- [ ] Implement dead code elimination
-- [ ] Add pass verification steps
-- [ ] Produce `optimized-ir.txt`
-
-### Example
-
-Before:
-
-```text
-%0 = const 2
-%1 = const 3
-%2 = add %0, %1
-print %2
-```
-
-After:
-
-```text
-%2 = const 5
-print %2
-```
-
-### Tests
-
-- [ ] constant folding
-- [ ] dead code elimination
-- [ ] optimizer preserves program behavior
-
----
-
-## Phase 11: Bytecode generation
-
-### Goal
-Compile the optimized IR into a simple, teachable instruction set.
-
-### Tasks
-
-- [ ] Define `OpCode` enum
-- [ ] Define `Instruction`
-- [ ] Define constant pool logic
-- [ ] Emit load/store instructions
-- [ ] Emit arithmetic instructions
-- [ ] Emit comparison instructions
-- [ ] Emit branch/jump instructions
-- [ ] Emit print and return instructions
-- [ ] Produce `bytecode.txt`
-- [ ] Produce `program.mbc`
-
-### Example bytecode
-
-```text
-PUSH_CONST 10
-STORE_LOCAL 0
-LOAD_LOCAL 0
-PUSH_CONST 20
-ADD
-PRINT
-HALT
-```
-
-### Tests
-
-- [ ] expression bytecode output
-- [ ] if translation
-- [ ] loop translation
-- [ ] bytecode golden tests
-
----
-
-## Phase 12: Disassembler
-
-### Goal
-Make bytecode readable to humans.
-
-### Tasks
-
-- [ ] Implement disassembler for the bytecode format
-- [ ] Output human-readable `bytecode.txt`
-- [ ] Distinguish between raw bytecode and readable assembly output
 
 ### Deliverable
 
-A program that can read `program.mbc` and print a readable representation.
+A working compiler pipeline from source to runtime result.
 
 ---
 
-## Phase 13: Virtual machine
+## Phase 9: CLI and end-to-end validation
 
 ### Goal
-Execute the generated bytecode.
+Turn the project into a usable compiler tool.
 
 ### Tasks
 
-- [ ] Implement VM state
-  - instruction pointer
-  - operand stack
-  - call stack
-  - local variables
-  - constant pool
-- [ ] Implement fetch/decode/execute loop
-- [ ] Implement arithmetic instructions
-- [ ] Implement conditionals and jumps
-- [ ] Implement print and return
-- [ ] Run whole programs through the VM
-
-### Tests
-
-- [ ] stack operations
-- [ ] arithmetic
-- [ ] branching
-- [ ] loops
-- [ ] full program execution
-
----
-
-## Phase 14: Functions, calls, and runtime frames
-
-### Goal
-Add the most important language feature needed for realistic programs.
-
-### Tasks
-
-- [ ] Add `FunctionSymbol`
-- [ ] Add function declaration AST
-- [ ] Add parameter binding
-- [ ] Add return type validation
-- [ ] Add call expressions
-- [ ] Add `CallFrame`
-- [ ] Implement recursion
-- [ ] Validate function returns are present on all valid paths
-
-### Tests
-
-- [ ] function declaration parsing
-- [ ] function call typing
-- [ ] recursion
-- [ ] runtime stack behavior
-
----
-
-## Phase 15: Full compiler pipeline and verification
-
-### Goal
-Finish the compiler as a coherent educational system.
-
-### Tasks
-
-- [ ] Create a compiler driver that runs all stages in order
-- [ ] Support commands like:
+- [ ] Add commands such as:
   - `lex`
   - `parse`
   - `check`
   - `interpret`
-  - `compile`
-  - `disasm`
-  - `run`
-- [ ] Support `--emit-all` mode to output all intermediate artifacts
-- [ ] Add differential tests
-  - AST interpreter output == VM output
-- [ ] Add end-to-end tests
+- [ ] Support reading a source file and outputting each stage
+- [ ] Add end-to-end validation against sample programs
+- [ ] Confirm each stage produces inspectable output
 
-### Example output directory
+### Tests
 
-```text
-artifacts/
-    factorial/
-        00-source.bas
-        01-tokens.txt
-        02-ast.txt
-        03-symbols.txt
-        04-typed-ast.txt
-        05-ir.txt
-        06-optimized-ir.txt
-        07-bytecode.txt
-        factorial.mbc
-```
+- [ ] sample program executes successfully
+- [ ] compiler emits tokens, AST, and symbols
+- [ ] diagnostics print correctly
 
-### Final evaluation
+### Deliverable
 
-The project should demonstrate that:
-
-- the lexer works,
-- the parser builds the AST,
-- the resolver tracks names,
-- the type checker validates semantics,
-- the interpreter computes output,
-- the bytecode compiler lowers to machine-like instructions,
-- the VM executes them correctly,
-- and the same program behaves consistently across runtimes.
+The project behaves like a teaching compiler front end with a working runtime.
 
 ---
 
-## Important architectural recommendation
+## Final MVP success criteria
 
-Introduce an explicit educational IR between typed AST and bytecode.
+The project is complete enough when all of the following work:
 
-Without IR:
+- source text can be loaded,
+- tokens are produced correctly,
+- AST is generated correctly,
+- names are resolved,
+- type rules are enforced,
+- programs run through an interpreter,
+- and outputs are shown in a way students can inspect.
 
-```text
-AST -> Bytecode
-```
-
-works technically, but students lose a critical compiler concept:
-
-A compiler progressively changes the representation of a program so the next stage becomes easier to solve.
-
-With IR:
-
-```text
-AST
-  -> Typed AST
-  -> IR
-  -> Optimized IR
-  -> Bytecode
-```
-
-students can observe the program becoming simpler and more machine-oriented at each step.
-
-This is a major educational advantage and should be treated as a first-class part of the project.
+This is the core product of the project.
 
 ---
 
-## Final rule
+## Important rule
 
-Do not add language features or infrastructure beyond the current educational stage unless the assignment explicitly calls for it.
+The main roadmap must stay intentionally small.
 
-The product is not the language itself. The product is the observable path from source code through every compiler stage to execution.
+Do not add advanced compiler concepts to the core implementation plan unless they are needed to teach a specific stage. Any larger architecture should live in a separate future-work document.
