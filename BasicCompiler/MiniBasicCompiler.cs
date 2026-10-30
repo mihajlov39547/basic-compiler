@@ -1,3 +1,4 @@
+using BasicCompiler.CodeGeneration;
 using BasicCompiler.Diagnostics;
 using BasicCompiler.Lexer;
 using BasicCompiler.Runtime;
@@ -80,5 +81,32 @@ public sealed class MiniBasicCompiler
         }
 
         return Compile(File.ReadAllText(path));
+    }
+
+    public string GeneratePython(string source)
+    {
+        var result = Compile(source);
+
+        if (result.HasErrors)
+        {
+            throw new InvalidOperationException("Cannot generate Python from source with semantic or parsing errors.");
+        }
+
+        return new PythonCodeGenerator().Generate(result.Statements);
+    }
+
+    public string GeneratePythonFile(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            throw new ArgumentException("Source path cannot be empty.", nameof(path));
+        }
+
+        if (!File.Exists(path))
+        {
+            throw new FileNotFoundException("Source file was not found.", path);
+        }
+
+        return GeneratePython(File.ReadAllText(path));
     }
 }

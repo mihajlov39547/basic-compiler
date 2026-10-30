@@ -9,6 +9,8 @@ public sealed class CompilerCommandFactory
         ["check"] = () => new CheckCommand(),
         ["interpret"] = () => new InterpretCommand(),
         ["bytecode"] = () => new BytecodeCommand(),
+        ["python"] = () => new PythonCommand(),
+        ["py"] = () => new PythonCommand(),
         ["help"] = () => new HelpCommand()
     };
 
@@ -31,6 +33,7 @@ public sealed class CompilerCommandFactory
         return "Usage: dotnet run --project BasicCompiler.csproj -- [command] [options]\n" +
                "       dotnet run --project BasicCompiler.csproj -- lex sample.bas\n" +
                "       dotnet run --project BasicCompiler.csproj -- bytecode sample.bas\n" +
+               "       dotnet run --project BasicCompiler.csproj -- python sample.bas\n" +
                "       dotnet run --project BasicCompiler.csproj -- interpret --file sample.bas\n" +
                "       dotnet run --project BasicCompiler.csproj -- --sample\n" +
                "       dotnet run --project BasicCompiler.csproj --  # defaults to the bundled sample.bas\n" +
@@ -40,6 +43,7 @@ public sealed class CompilerCommandFactory
                "  check     resolve names and validate types\n" +
                "  interpret run the program with the reference interpreter\n" +
                "  bytecode  lower the source program to bytecode and show VM trace\n" +
+               "  python    generate equivalent Python from the parsed AST\n" +
                "  help      show this help text\n" +
                "\nOptions:\n" +
                "  --file PATH    source file to use with a command\n" +
@@ -50,6 +54,7 @@ public sealed class CompilerCommandFactory
                "  dotnet run --project BasicCompiler.csproj -- parse sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- check --file sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- bytecode sample.bas\n" +
+               "  dotnet run --project BasicCompiler.csproj -- python sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- interpret --file sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- --sample";
     }

@@ -137,6 +137,16 @@ public static class ArtifactWriter
         return filePath;
     }
 
+    public static string WritePythonCode(string pythonCode, string sourcePath)
+    {
+        var outputDirectory = GetOutputDirectory();
+        var filePath = Path.Combine(outputDirectory, "08-python.py");
+
+        Directory.CreateDirectory(outputDirectory);
+        File.WriteAllText(filePath, pythonCode);
+        return filePath;
+    }
+
     public static string WriteBytecode(CompiledProgram program, string sourcePath)
     {
         var outputDirectory = GetOutputDirectory();

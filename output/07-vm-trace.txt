@@ -1,5 +1,5 @@
-Source: mini-basic-bytecode-83cda246ee684626884d822e9cb15038.bas
-Generated: 2026-10-30T07:03:15.7276368Z
+Source: mini-basic-bytecode-3bb57c88ef9443959c2e202f98722056.bas
+Generated: 2026-10-30T07:11:48.4839702Z
 
 Virtual Machine Trace
 --------------------

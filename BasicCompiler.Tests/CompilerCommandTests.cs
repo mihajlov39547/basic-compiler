@@ -1,4 +1,5 @@
 using BasicCompiler.Cli;
+using BasicCompiler.CodeGeneration;
 
 namespace BasicCompiler.Tests;
 
@@ -33,6 +34,40 @@ public class CompilerCommandTests
         Assert.Contains("parse", helpText, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("check", helpText, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("interpret", helpText, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void PythonCodeGenerator_GeneratesPythonFromAst()
+    {
+        var source = "var total := 2\nvar counter := 0\nwhile counter < 3 do\n    total := total + 1\n    counter := counter + 1\nendwhile\nprint(total)";
+        var tokens = new BasicCompiler.Lexer.Lexer(source).Tokenize();
+        var statements = new BasicCompiler.Syntax.Parser(tokens).ParseProgram();
+
+        var python = new PythonCodeGenerator().Generate(statements);
+
+        Assert.Contains("total = 2", python, StringComparison.Ordinal);
+        Assert.Contains("while counter < 3:", python, StringComparison.Ordinal);
+        Assert.Contains("print(total)", python, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PythonCommand_WritesPythonArtifact()
+    {
+        var tempPath = Path.Combine(Path.GetTempPath(), $"mini-basic-python-{Guid.NewGuid():N}.bas");
+        var source = "var value := 2\nprint(value + 3)";
+        File.WriteAllText(tempPath, source);
+
+        try
+        {
+            var exitCode = new PythonCommand().Execute(new[] { tempPath });
+
+            Assert.Equal(0, exitCode);
+            Assert.True(File.Exists(Path.Combine(Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..")), "output", "08-python.py")));
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
     }
 
     [Fact]
