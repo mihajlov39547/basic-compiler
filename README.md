@@ -169,11 +169,13 @@ The generated output demonstrates both control flow and expression evaluation in
 Related project documents:
 
 - [LanguageSpecification.md](LanguageSpecification.md) — language rules and grammar overview
+- [INTERPRETER.md](INTERPRETER.md) — explains the current interpreter as the teaching runtime layer
 - [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) — current implementation roadmap
 - [ADVANCED_FUTURE_WORK.md](ADVANCED_FUTURE_WORK.md) — future compiler and research ideas
-- [MEDIUM_ARTICLE.md](MEDIUM_ARTICLE.md) — article-style explanation of the project and approach
 - [AGENTS.md](AGENTS.md) — repository guidance for coding agents
 - [AGENTS-guardrails.md](AGENTS-guardrails.md) — guardrails and development constraints
+
+The interpreter is the current runtime stage of the compiler: it executes the validated AST directly, which makes it easy to understand before moving to lowering, optimization, and backend code generation.
 
 ## Status
 
