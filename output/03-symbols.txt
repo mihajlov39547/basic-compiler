@@ -1,0 +1,19 @@
+Source: mini-basic-phase10-f612f9f8eabf46c2b068164fc97bb062.bas
+Generated: 2026-10-30T06:47:29.5716334Z
+
+Symbols
+--------
+average: unknown
+blocked: unknown
+counter: unknown
+done: unknown
+enabled: unknown
+isEqual: unknown
+isGreaterOrEqual: unknown
+isLessOrEqual: unknown
+isNotEqual: unknown
+isSmall: unknown
+limit: unknown
+name: unknown
+start: unknown
+total: unknown

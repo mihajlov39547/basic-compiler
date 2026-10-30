@@ -1,3 +1,4 @@
+using BasicCompiler.Diagnostics;
 using BasicCompiler.Lexer;
 using BasicCompiler.Syntax.AST;
 
@@ -51,6 +52,83 @@ public static class ArtifactWriter
             "AST",
             "----",
             AstPrinter.Print(statements)
+        };
+
+        Directory.CreateDirectory(outputDirectory);
+        File.WriteAllLines(filePath, lines);
+        return filePath;
+    }
+
+    public static string WriteSymbols(string symbolDump, string sourcePath)
+    {
+        var outputDirectory = GetOutputDirectory();
+        var filePath = Path.Combine(outputDirectory, "03-symbols.txt");
+
+        var lines = new List<string>
+        {
+            $"Source: {Path.GetFileName(sourcePath)}",
+            $"Generated: {DateTime.UtcNow:O}",
+            string.Empty,
+            "Symbols",
+            "--------",
+            symbolDump
+        };
+
+        Directory.CreateDirectory(outputDirectory);
+        File.WriteAllLines(filePath, lines);
+        return filePath;
+    }
+
+    public static string WriteDiagnostics(IReadOnlyList<Diagnostic> diagnostics, string sourcePath)
+    {
+        var outputDirectory = GetOutputDirectory();
+        var filePath = Path.Combine(outputDirectory, "04-diagnostics.txt");
+
+        var lines = new List<string>
+        {
+            $"Source: {Path.GetFileName(sourcePath)}",
+            $"Generated: {DateTime.UtcNow:O}",
+            string.Empty,
+            "Diagnostics",
+            "-----------"
+        };
+
+        if (diagnostics.Count == 0)
+        {
+            lines.Add("No diagnostics.");
+        }
+        else
+        {
+            lines.AddRange(diagnostics.Select(d => d.ToString()));
+        }
+
+        Directory.CreateDirectory(outputDirectory);
+        File.WriteAllLines(filePath, lines);
+        return filePath;
+    }
+
+    public static string WriteRuntimeResult(object? runtimeResult, string sourcePath)
+    {
+        var outputDirectory = GetOutputDirectory();
+        var filePath = Path.Combine(outputDirectory, "05-runtime.txt");
+
+        var formatted = runtimeResult switch
+        {
+            null => "<null>",
+            bool value => value.ToString(),
+            string value => value,
+            IFormattable formattable => formattable.ToString(null, System.Globalization.CultureInfo.InvariantCulture),
+            _ => runtimeResult.ToString() ?? "<empty>"
+        };
+
+        var lines = new List<string>
+        {
+            $"Source: {Path.GetFileName(sourcePath)}",
+            $"Generated: {DateTime.UtcNow:O}",
+            string.Empty,
+            "Execution result",
+            "----------------",
+            $"{formatted}"
         };
 
         Directory.CreateDirectory(outputDirectory);

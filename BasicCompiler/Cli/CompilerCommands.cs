@@ -41,14 +41,27 @@ public sealed class CompilerCommandFactory
 
     public static string GetUsageText()
     {
-        return "Usage: dotnet run --project BasicCompiler.csproj -- [lex|parse|check|interpret] <path-to-sample.bas>\n" +
-               "       dotnet run --project BasicCompiler.csproj -- sample.bas\n" +
+        return "Usage: dotnet run --project BasicCompiler.csproj -- [command] [options]\n" +
+               "       dotnet run --project BasicCompiler.csproj -- lex sample.bas\n" +
+               "       dotnet run --project BasicCompiler.csproj -- interpret --file sample.bas\n" +
+               "       dotnet run --project BasicCompiler.csproj -- --sample\n" +
                "       dotnet run --project BasicCompiler.csproj --  # defaults to the bundled sample.bas\n" +
+               "\nCommands:\n" +
+               "  lex       tokenize a source file\n" +
+               "  parse     parse a source file into an AST\n" +
+               "  check     resolve names and validate types\n" +
+               "  interpret run the program with the reference interpreter\n" +
+               "  help      show this help text\n" +
+               "\nOptions:\n" +
+               "  --file PATH    source file to use with a command\n" +
+               "  --sample       run the bundled sample.bas\n" +
+               "  -h, --help     show this help text\n" +
                "\nExamples:\n" +
-               "  dotnet run --project BasicCompiler.csproj -- lex sample.bas\n" +
+               "  dotnet run --project BasicCompiler.csproj -- lex --file sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- parse sample.bas\n" +
-               "  dotnet run --project BasicCompiler.csproj -- check sample.bas\n" +
-               "  dotnet run --project BasicCompiler.csproj -- interpret sample.bas";
+               "  dotnet run --project BasicCompiler.csproj -- check --file sample.bas\n" +
+               "  dotnet run --project BasicCompiler.csproj -- interpret --file sample.bas\n" +
+               "  dotnet run --project BasicCompiler.csproj -- --sample";
     }
 }
 
@@ -172,9 +185,19 @@ public sealed class InterpretCommand : CompilerCommandBase
         var lexerArtifactPath = ArtifactWriter.WriteLexerTokens(compileResult.Tokens, sourcePath);
         var astArtifactPath = ArtifactWriter.WriteAst(compileResult.Statements, sourcePath);
 
+        var resolver = new NameResolver();
+        resolver.Resolve(compileResult.Statements);
+        var symbolArtifactPath = ArtifactWriter.WriteSymbols(resolver.GetSymbolDump(), sourcePath);
+
+        var diagnosticsArtifactPath = ArtifactWriter.WriteDiagnostics(compileResult.Diagnostics, sourcePath);
+        var runtimeArtifactPath = ArtifactWriter.WriteRuntimeResult(compileResult.RuntimeResult, sourcePath);
+
         Console.WriteLine($"MiniBASIC source: {sourcePath}");
         Console.WriteLine($"Lexer artifact saved to: {lexerArtifactPath}");
         Console.WriteLine($"AST artifact saved to: {astArtifactPath}");
+        Console.WriteLine($"Symbols artifact saved to: {symbolArtifactPath}");
+        Console.WriteLine($"Diagnostics artifact saved to: {diagnosticsArtifactPath}");
+        Console.WriteLine($"Runtime artifact saved to: {runtimeArtifactPath}");
         Console.WriteLine($"\nExecution result: {compileResult.RuntimeResult}");
 
         if (compileResult.HasErrors)

@@ -81,11 +81,18 @@ public class CompilerCommandTests
             Assert.Equal(0, result);
             Assert.True(File.Exists(Path.Combine(artifactDirectory, "01-tokens.txt")));
             Assert.True(File.Exists(Path.Combine(artifactDirectory, "02-ast.txt")));
+            Assert.True(File.Exists(Path.Combine(artifactDirectory, "03-symbols.txt")));
+            Assert.True(File.Exists(Path.Combine(artifactDirectory, "04-diagnostics.txt")));
+            Assert.True(File.Exists(Path.Combine(artifactDirectory, "05-runtime.txt")));
 
             var tokensText = File.ReadAllText(Path.Combine(artifactDirectory, "01-tokens.txt"));
             Assert.Contains("Source:", tokensText, StringComparison.Ordinal);
             Assert.Contains("EOF", tokensText, StringComparison.Ordinal);
             Assert.Contains("compiler start", tokensText, StringComparison.OrdinalIgnoreCase);
+
+            var runtimeText = File.ReadAllText(Path.Combine(artifactDirectory, "05-runtime.txt"));
+            Assert.Contains("Execution result", runtimeText, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("True", runtimeText, StringComparison.Ordinal);
         }
         finally
         {
