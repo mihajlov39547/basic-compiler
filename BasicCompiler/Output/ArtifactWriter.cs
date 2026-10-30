@@ -149,14 +149,16 @@ public static class ArtifactWriter
             $"Instruction count: {program.Instructions.Count}",
             $"Constant count: {program.Constants.Count}",
             string.Empty,
-            "Bytecode",
-            "--------"
+            "Bytecode program",
+            "----------------",
+            "PC | Opcode             | Operand | Meaning",
+            "-------------------------------------------"
         };
 
         for (var i = 0; i < program.Instructions.Count; i++)
         {
             var instruction = program.Instructions[i];
-            lines.Add($"{i:00}: {instruction.OpCode} {FormatOperand(instruction.Operand)}");
+            lines.Add($"{i,2} | {instruction.OpCode,-18} | {FormatOperand(instruction.Operand),-8} | {DescribeBytecodeInstruction(instruction, program.Constants)}");
         }
 
         lines.Add(string.Empty);
@@ -183,7 +185,8 @@ public static class ArtifactWriter
             $"Generated: {DateTime.UtcNow:O}",
             string.Empty,
             "Virtual Machine Trace",
-            "--------------------"
+            "--------------------",
+            "Step | Opcode             | Action                               | Stack | Environment"
         };
 
         lines.AddRange(trace);
@@ -198,6 +201,35 @@ public static class ArtifactWriter
         var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
         var outputDirectory = Path.Combine(projectRoot, "output");
         return outputDirectory;
+    }
+
+    private static string DescribeBytecodeInstruction(Instruction instruction, IReadOnlyList<object?> constants)
+    {
+        return instruction.OpCode switch
+        {
+            OpCode.LoadConstant => $"push const[{instruction.Operand}] = {FormatConstant(constants[(int)(instruction.Operand ?? 0)])}",
+            OpCode.LoadVariable => $"push env[\"{instruction.Operand}\"]",
+            OpCode.StoreVariable => $"store top-of-stack into {instruction.Operand}",
+            OpCode.Add => "pop right, left; push left + right",
+            OpCode.Subtract => "pop right, left; push left - right",
+            OpCode.Multiply => "pop right, left; push left * right",
+            OpCode.Divide => "pop right, left; push left / right",
+            OpCode.Equals => "pop right, left; push left == right",
+            OpCode.NotEquals => "pop right, left; push left != right",
+            OpCode.LessThan => "pop right, left; push left < right",
+            OpCode.GreaterThan => "pop right, left; push left > right",
+            OpCode.LessThanOrEqual => "pop right, left; push left <= right",
+            OpCode.GreaterThanOrEqual => "pop right, left; push left >= right",
+            OpCode.Not => "logical not",
+            OpCode.And => "logical and",
+            OpCode.Or => "logical or",
+            OpCode.Negate => "negate top-of-stack",
+            OpCode.Jump => $"jump to {instruction.Operand}",
+            OpCode.JumpIfFalse => $"jump to {instruction.Operand} if condition is false",
+            OpCode.Print => "print top-of-stack",
+            OpCode.Halt => "stop execution",
+            _ => "-"
+        };
     }
 
     private static string FormatOperand(object? operand)

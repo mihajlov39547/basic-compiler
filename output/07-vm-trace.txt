@@ -1,11 +1,12 @@
-Source: mini-basic-bytecode-aec9ee89053d4d0d9aee163f68027b3f.bas
-Generated: 2026-10-30T07:00:01.2700256Z
+Source: mini-basic-bytecode-83cda246ee684626884d822e9cb15038.bas
+Generated: 2026-10-30T07:03:15.7276368Z
 
 Virtual Machine Trace
 --------------------
-00: LOAD_CONSTANT 0 -> stack=[2] env={}
-01: STORE_VARIABLE value = 2 -> stack=[] env={value=2}
-02: LOAD_VARIABLE value -> stack=[2] env={value=2}
-03: LOAD_CONSTANT 1 -> stack=[2, 3] env={value=2}
-04: ADD -> stack=[5] env={value=2}
-05: PRINT 5 -> stack=[] env={value=2}
+Step | Opcode             | Action                               | Stack | Environment
+00 | LoadConstant       | push const[0] = 2                  | stack=[2] | env={}
+01 | StoreVariable      | store 2 into value                 | stack=[] | env={value=2}
+02 | LoadVariable       | push env["value"] = 2              | stack=[2] | env={value=2}
+03 | LoadConstant       | push const[1] = 3                  | stack=[2, 3] | env={value=2}
+04 | Add                | pop right, left; push left + right | stack=[5] | env={value=2}
+05 | Print              | print 5                            | stack=[] | env={value=2}

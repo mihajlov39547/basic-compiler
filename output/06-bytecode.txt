@@ -1,17 +1,19 @@
-Source: mini-basic-bytecode-aec9ee89053d4d0d9aee163f68027b3f.bas
-Generated: 2026-10-30T07:00:01.2656444Z
+Source: mini-basic-bytecode-83cda246ee684626884d822e9cb15038.bas
+Generated: 2026-10-30T07:03:15.7241125Z
 Instruction count: 7
 Constant count: 2
 
-Bytecode
---------
-00: LoadConstant 0
-01: StoreVariable value
-02: LoadVariable value
-03: LoadConstant 1
-04: Add -
-05: Print -
-06: Halt -
+Bytecode program
+----------------
+PC | Opcode             | Operand | Meaning
+-------------------------------------------
+ 0 | LoadConstant       | 0        | push const[0] = 2
+ 1 | StoreVariable      | value    | store top-of-stack into value
+ 2 | LoadVariable       | value    | push env["value"]
+ 3 | LoadConstant       | 1        | push const[1] = 3
+ 4 | Add                | -        | pop right, left; push left + right
+ 5 | Print              | -        | print top-of-stack
+ 6 | Halt               | -        | stop execution
 
 Constants:
   [0] = 2
