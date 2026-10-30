@@ -1,3 +1,4 @@
+using BasicCompiler.Output;
 using BasicCompiler.Semantics;
 
 namespace BasicCompiler.Cli;

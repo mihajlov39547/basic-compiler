@@ -1,6 +1,7 @@
 using BasicCompiler.Lexer;
 using BasicCompiler.Semantics;
 using BasicCompiler.Syntax;
+using LexerClass = BasicCompiler.Lexer.Lexer;
 
 namespace BasicCompiler.Cli;
 
@@ -10,7 +11,7 @@ public sealed class CheckCommand : CompilerCommandBase
     {
         var sourcePath = RequireSourcePath(args);
         var source = ReadSource(sourcePath);
-        var tokens = new Lexer(source).Tokenize();
+        var tokens = new LexerClass(source).Tokenize();
         var statements = new Parser(tokens).ParseProgram();
         var resolver = new NameResolver();
         resolver.Resolve(statements);

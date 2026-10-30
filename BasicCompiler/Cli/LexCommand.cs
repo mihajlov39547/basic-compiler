@@ -1,4 +1,6 @@
 using BasicCompiler.Lexer;
+using BasicCompiler.Output;
+using LexerClass = BasicCompiler.Lexer.Lexer;
 
 namespace BasicCompiler.Cli;
 
@@ -8,7 +10,7 @@ public sealed class LexCommand : CompilerCommandBase
     {
         var sourcePath = RequireSourcePath(args);
         var source = ReadSource(sourcePath);
-        var tokens = new Lexer(source).Tokenize();
+        var tokens = new LexerClass(source).Tokenize();
         var artifactPath = ArtifactWriter.WriteLexerTokens(tokens, sourcePath);
 
         Console.WriteLine($"MiniBASIC source: {sourcePath}");
