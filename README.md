@@ -1,5 +1,9 @@
 # MiniBasic Compiler
 
+![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey)
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
+![Build](https://img.shields.io/badge/Build-Status-GitHub%20Actions-blue)
+
 A teaching-first compiler prototype written in C# for .NET 10. This project is designed as a hands-on example of how a small language can move from source text to tokens, AST, semantic checks, bytecode, runtime execution, and generated Python.
 
 This repository is intentionally educational: the goal is not to build a production optimizer or a full commercial language runtime, but to make each compiler stage visible and easy to understand.
@@ -175,6 +179,8 @@ Related project documents:
 
 This project is best understood as a proof-of-concept educational compiler and a reference implementation for learning compiler construction in a modern C# environment.
 
+It is intended for classroom use, tutorials, workshops, and personal exploration.
+
 It is not a full production-grade language ecosystem, but it is a solid teaching artifact for understanding:
 
 - lexing
@@ -189,7 +195,16 @@ It is not a full production-grade language ecosystem, but it is a solid teaching
 
 ## License
 
+This project is licensed under the Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) license.
+
+- License text: https://creativecommons.org/licenses/by-sa/4.0/
+- Local copy: [LICENSE](LICENSE)
+
 This project is intended for educational use in a learning and demonstration context.
+
+## Contributing
+
+For development and PR guidance, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
