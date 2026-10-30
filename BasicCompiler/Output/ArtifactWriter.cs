@@ -1,3 +1,4 @@
+using BasicCompiler.Bytecode;
 using BasicCompiler.Diagnostics;
 using BasicCompiler.Lexer;
 using BasicCompiler.Syntax.AST;
@@ -136,11 +137,92 @@ public static class ArtifactWriter
         return filePath;
     }
 
+    public static string WriteBytecode(CompiledProgram program, string sourcePath)
+    {
+        var outputDirectory = GetOutputDirectory();
+        var filePath = Path.Combine(outputDirectory, "06-bytecode.txt");
+
+        var lines = new List<string>
+        {
+            $"Source: {Path.GetFileName(sourcePath)}",
+            $"Generated: {DateTime.UtcNow:O}",
+            $"Instruction count: {program.Instructions.Count}",
+            $"Constant count: {program.Constants.Count}",
+            string.Empty,
+            "Bytecode",
+            "--------"
+        };
+
+        for (var i = 0; i < program.Instructions.Count; i++)
+        {
+            var instruction = program.Instructions[i];
+            lines.Add($"{i:00}: {instruction.OpCode} {FormatOperand(instruction.Operand)}");
+        }
+
+        lines.Add(string.Empty);
+        lines.Add("Constants:");
+        for (var i = 0; i < program.Constants.Count; i++)
+        {
+            var constant = program.Constants[i];
+            lines.Add($"  [{i}] = {FormatConstant(constant)}");
+        }
+
+        Directory.CreateDirectory(outputDirectory);
+        File.WriteAllLines(filePath, lines);
+        return filePath;
+    }
+
+    public static string WriteVmTrace(IReadOnlyList<string> trace, string sourcePath)
+    {
+        var outputDirectory = GetOutputDirectory();
+        var filePath = Path.Combine(outputDirectory, "07-vm-trace.txt");
+
+        var lines = new List<string>
+        {
+            $"Source: {Path.GetFileName(sourcePath)}",
+            $"Generated: {DateTime.UtcNow:O}",
+            string.Empty,
+            "Virtual Machine Trace",
+            "--------------------"
+        };
+
+        lines.AddRange(trace);
+
+        Directory.CreateDirectory(outputDirectory);
+        File.WriteAllLines(filePath, lines);
+        return filePath;
+    }
+
     public static string GetOutputDirectory()
     {
         var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
         var outputDirectory = Path.Combine(projectRoot, "output");
         return outputDirectory;
+    }
+
+    private static string FormatOperand(object? operand)
+    {
+        if (operand is null)
+        {
+            return "-";
+        }
+
+        return operand.ToString() ?? "-";
+    }
+
+    private static string FormatConstant(object? constant)
+    {
+        if (constant is null)
+        {
+            return "<null>";
+        }
+
+        if (constant is string text)
+        {
+            return $"\"{EscapeDisplay(text)}\"";
+        }
+
+        return constant.ToString() ?? "<empty>";
     }
 
     private static string FormatTokenRow(int index, Token token)

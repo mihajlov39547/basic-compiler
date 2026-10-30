@@ -16,6 +16,11 @@ public enum OpCode
     GreaterThan,
     LessThanOrEqual,
     GreaterThanOrEqual,
+    Not,
+    And,
+    Or,
+    Negate,
+    Jump,
     JumpIfFalse,
     Print
 }

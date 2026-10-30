@@ -1,0 +1,18 @@
+Source: mini-basic-bytecode-aec9ee89053d4d0d9aee163f68027b3f.bas
+Generated: 2026-10-30T07:00:01.2656444Z
+Instruction count: 7
+Constant count: 2
+
+Bytecode
+--------
+00: LoadConstant 0
+01: StoreVariable value
+02: LoadVariable value
+03: LoadConstant 1
+04: Add -
+05: Print -
+06: Halt -
+
+Constants:
+  [0] = 2
+  [1] = 3

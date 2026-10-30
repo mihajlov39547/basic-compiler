@@ -1,0 +1,11 @@
+Source: mini-basic-bytecode-aec9ee89053d4d0d9aee163f68027b3f.bas
+Generated: 2026-10-30T07:00:01.2700256Z
+
+Virtual Machine Trace
+--------------------
+00: LOAD_CONSTANT 0 -> stack=[2] env={}
+01: STORE_VARIABLE value = 2 -> stack=[] env={value=2}
+02: LOAD_VARIABLE value -> stack=[2] env={value=2}
+03: LOAD_CONSTANT 1 -> stack=[2, 3] env={value=2}
+04: ADD -> stack=[5] env={value=2}
+05: PRINT 5 -> stack=[] env={value=2}

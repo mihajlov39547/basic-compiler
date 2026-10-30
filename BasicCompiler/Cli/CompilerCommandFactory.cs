@@ -8,6 +8,7 @@ public sealed class CompilerCommandFactory
         ["parse"] = () => new ParseCommand(),
         ["check"] = () => new CheckCommand(),
         ["interpret"] = () => new InterpretCommand(),
+        ["bytecode"] = () => new BytecodeCommand(),
         ["help"] = () => new HelpCommand()
     };
 
@@ -29,6 +30,7 @@ public sealed class CompilerCommandFactory
     {
         return "Usage: dotnet run --project BasicCompiler.csproj -- [command] [options]\n" +
                "       dotnet run --project BasicCompiler.csproj -- lex sample.bas\n" +
+               "       dotnet run --project BasicCompiler.csproj -- bytecode sample.bas\n" +
                "       dotnet run --project BasicCompiler.csproj -- interpret --file sample.bas\n" +
                "       dotnet run --project BasicCompiler.csproj -- --sample\n" +
                "       dotnet run --project BasicCompiler.csproj --  # defaults to the bundled sample.bas\n" +
@@ -37,6 +39,7 @@ public sealed class CompilerCommandFactory
                "  parse     parse a source file into an AST\n" +
                "  check     resolve names and validate types\n" +
                "  interpret run the program with the reference interpreter\n" +
+               "  bytecode  lower the source program to bytecode and show VM trace\n" +
                "  help      show this help text\n" +
                "\nOptions:\n" +
                "  --file PATH    source file to use with a command\n" +
@@ -46,6 +49,7 @@ public sealed class CompilerCommandFactory
                "  dotnet run --project BasicCompiler.csproj -- lex --file sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- parse sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- check --file sample.bas\n" +
+               "  dotnet run --project BasicCompiler.csproj -- bytecode sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- interpret --file sample.bas\n" +
                "  dotnet run --project BasicCompiler.csproj -- --sample";
     }
